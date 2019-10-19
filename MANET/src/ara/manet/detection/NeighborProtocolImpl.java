@@ -1,0 +1,58 @@
+package ara.manet.detection;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import ara.manet.communication.Emitter;
+import peersim.config.Configuration;
+
+public class NeighborProtocolImpl implements NeighborProtocol {
+	
+	private static final String PAR_PROBE = "probe";
+	private static final String PAR_TIMER = "timer";
+	private static final String PAR_EMITTER = "emit";
+//	private static final String PAR_LISTENER = "neighborhoodlistener";
+	
+	private final int my_pid;
+	private final int probe;
+	private final int timer;
+	private final Emitter emitter;
+//	private final NeighborhoodListener neighborhoodlistener;
+	
+	
+	private List<Long> neighbors ;
+	public NeighborProtocolImpl(String prefix) {
+		
+		String tmp[] = prefix.split("\\.");
+		my_pid = Configuration.lookupPid(tmp[tmp.length - 1]);
+		this.probe = Configuration.getInt(prefix + "." + PAR_PROBE);
+		this.timer = Configuration.getInt(prefix + "." + PAR_TIMER);
+		this.emitter = (Emitter) Configuration.getInstance("protocol." + PAR_EMITTER);
+//		this.neighborhoodlistener = (NeighborhoodListener) Configuration.getInstance("protocol." + PAR_LISTENER);
+		this.neighbors = new ArrayList<Long>();
+	}
+	
+	
+	@Override
+	public List<Long> getNeighbors() {
+		// TODO Auto-generated method stub
+		return neighbors;
+	}
+	
+	@Override
+	public NeighborProtocolImpl clone() {
+		NeighborProtocolImpl em = null;
+		try {
+			em = (NeighborProtocolImpl) super.clone();
+			em.neighbors = new ArrayList<Long>();
+		}
+		catch( CloneNotSupportedException e ) {} // never happens
+		return em;
+	}
+
+	public heartbeathearbeat{
+		for {
+			emit.msg(Node,)
+		}
+	}
+}

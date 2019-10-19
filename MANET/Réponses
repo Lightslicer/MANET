@@ -1,0 +1,12 @@
+Exo1 Q1
+si le noeud est immobile : configurer sa vitesse et destination
+puis calculer distance-destination et distance_to_next que le noeud peut parcourir 
+en 1000miliseconds(?)
+Comparer les deux vitesses :
+    si distance_to_next < distance => pas encore arrivé, maj position
+    sinon position = destination(arrivé)
+
+si arrivé :
+    set noeud immobile et add event pause
+sinon
+    add next event

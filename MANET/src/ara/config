@@ -1,0 +1,37 @@
+network.size 8
+random.seed 8
+simulation.endtime 50000
+
+protocol.position PositionProtocolImpl
+protocol.position.maxspeed 300
+protocol.position.minspeed 30
+protocol.position.width 3000
+protocol.position.height 3000
+protocol.position.pause 200
+
+protocol.emit EmitterImpl
+protocol.emit.latency 200
+protocol.emit.scope 200
+protocol.emit.variance 1
+
+protocol.neighbor NeighborProtocolImpl
+protocol.neighbor.probe 20
+protocol.neighbor.timer 20
+
+initial_position_strategy FullRandom
+initial_position_strategy.positionprotocol position
+
+next_destination_strategy FullRandom
+next_destination_strategy.positionprotocol position
+
+control.monitor GraphicalMonitor
+control.monitor.positionprotocol position
+control.monitor.emitter emit
+control.monitor.neighborprotocol neighbor
+control.monitor.time_slow 0.0002
+control.monitor.from 0
+control.monitor.until 50000
+control.monitor.step 1
+
+init.i Initialisation
+
