@@ -5,6 +5,7 @@ import java.util.List;
 
 import ara.manet.communication.Emitter;
 import peersim.config.Configuration;
+import peersim.core.Node;
 
 public class NeighborProtocolImpl implements NeighborProtocol {
 	
@@ -50,9 +51,11 @@ public class NeighborProtocolImpl implements NeighborProtocol {
 		return em;
 	}
 
-	public heartbeathearbeat{
-		for {
-			emit.msg(Node,)
-		}
+	public void heartbeat(Node host){
+			long idSrc = host.getID();
+			ProbeMessage m = new ProbeMessage(idSrc,(long)-2,my_pid,timer,probe);
+		
+			emitter.emit(host, m);
+		
 	}
 }

@@ -1,9 +1,8 @@
 package ara.manet;
 
 
-import ara.manet.positioning.Position;
+import ara.manet.detection.NeighborProtocolImpl;
 import ara.manet.positioning.PositionProtocolImpl;
-import ara.manet.positioning.PositioningConfiguration;
 import peersim.config.Configuration;
 import peersim.core.Control;
 import peersim.core.Network;
@@ -18,6 +17,7 @@ public class Initialisation implements Control{
 				
 		
 		int position_pid=Configuration.lookupPid("position");
+		int neighbor_pid=Configuration.lookupPid("neighbor");
 		for(int i = 0;i<Network.size();i++) {
 			Node src = Network.get(i);
 			PositionProtocolImpl pp = (PositionProtocolImpl) src.getProtocol(position_pid);
@@ -26,6 +26,12 @@ public class Initialisation implements Control{
 			//Ca a l'air de marche
 			
 		} 
+		for(int i = 0;i<Network.size();i++) {
+			Node src = Network.get(i);
+			
+			NeighborProtocolImpl np = (NeighborProtocolImpl) src.getProtocol(neighbor_pid);
+			np.heartbeat(src);
+		}
 		
 		return false;
 	}
