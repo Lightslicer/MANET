@@ -27,8 +27,7 @@ public class Initialisation implements Control{
 			
 		} 
 		for(int i = 0;i<Network.size();i++) {
-			Node src = Network.get(i);
-			
+			Node src = Network.get(i);			
 			NeighborProtocolImpl np = (NeighborProtocolImpl) src.getProtocol(neighbor_pid);
 			np.heartbeat(src);
 		}

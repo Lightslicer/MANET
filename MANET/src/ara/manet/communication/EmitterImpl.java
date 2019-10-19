@@ -43,21 +43,21 @@ public class EmitterImpl implements Emitter {
 			NeighborProtocolImpl np = (NeighborProtocolImpl) node.getProtocol(m.getPid());
 			if(!np.getNeighbors().contains(m.getIdSrc()))
 			if(m.getIdDest() == Emitter.ALL || m.getIdDest() == node.getID()) {
-				/*ajout de idsrc dans la liste voisin soit deliver mais comment*/
-				
 					np.getNeighbors().add(m.getIdSrc());
-				
+					for(int i = 0 ; i< np.getNeighbors().size();i++){
+						Node dst = Network.get(Math.toIntExact(np.getNeighbors().get(i)));
+						EDSimulator.add(m.getTimer(), new RemoveMessage(node.getID(),node.getID(),my_pid,m.getPid(),m.getIdSrc()), node, pid);
+					}
 			}
-			for(int i = 0 ; i< np.getNeighbors().size();i++){
-				Node dst = Network.get(Math.toIntExact(np.getNeighbors().get(i)));
-				EDSimulator.add(m.getTimer(), new RemoveMessage(node.getID(),node.getID(),my_pid,m.getPid(),m.getIdSrc()), node, pid);
-			}
-			//EDSimulator.add(m.getProbe(), new HeartBeatMessage(node.getID(),node.getID(),my_pid,m), node, pid); //lui il cause le bug trop de tache en exc
+//			for(int i = 0 ; i< np.getNeighbors().size();i++){
+//				Node dst = Network.get(Math.toIntExact(np.getNeighbors().get(i)));
+//				EDSimulator.add(m.getTimer(), new RemoveMessage(node.getID(),node.getID(),my_pid,m.getPid(),m.getIdSrc()), node, pid);
+//			}
+			EDSimulator.add(m.getProbe(), new HeartBeatMessage(node.getID(),node.getID(),my_pid,m), Network.get((int) m.getIdSrc()), pid); //lui il cause le bug trop de tache en exc
 		}
 		if (event instanceof HeartBeatMessage) {
 			HeartBeatMessage m = (HeartBeatMessage) event;
 			emit(node,m.getMessage());
-			ddsdsd
 		}
 		if (event instanceof RemoveMessage) {//remove ne marche pas
 			

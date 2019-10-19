@@ -53,9 +53,7 @@ public class NeighborProtocolImpl implements NeighborProtocol {
 
 	public void heartbeat(Node host){
 			long idSrc = host.getID();
-			ProbeMessage m = new ProbeMessage(idSrc,(long)-2,my_pid,timer,probe);
-		
-			emitter.emit(host, m);
-		
+			ProbeMessage m = new ProbeMessage(idSrc,(long)-2,my_pid,timer,probe);		
+			emitter.emit(host, m);		
 	}
 }

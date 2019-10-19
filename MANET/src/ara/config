@@ -1,5 +1,5 @@
-network.size 8
-random.seed 8
+network.size 30
+random.seed 10
 simulation.endtime 50000
 
 protocol.position PositionProtocolImpl
@@ -15,8 +15,8 @@ protocol.emit.scope 200
 protocol.emit.variance 1
 
 protocol.neighbor NeighborProtocolImpl
-protocol.neighbor.probe 100
-protocol.neighbor.timer 600
+protocol.neighbor.probe 500
+protocol.neighbor.timer 2000
 
 initial_position_strategy FullRandom
 initial_position_strategy.positionprotocol position
