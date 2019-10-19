@@ -57,6 +57,7 @@ public class EmitterImpl implements Emitter {
 		if (event instanceof HeartBeatMessage) {
 			HeartBeatMessage m = (HeartBeatMessage) event;
 			emit(node,m.getMessage());
+			ddsdsd
 		}
 		if (event instanceof RemoveMessage) {//remove ne marche pas
 			
