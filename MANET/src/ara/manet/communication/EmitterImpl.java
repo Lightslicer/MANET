@@ -44,15 +44,15 @@ public class EmitterImpl implements Emitter {
 			if(!np.getNeighbors().contains(m.getIdSrc()))
 			if(m.getIdDest() == Emitter.ALL || m.getIdDest() == node.getID()) {
 					np.getNeighbors().add(m.getIdSrc());
-					for(int i = 0 ; i< np.getNeighbors().size();i++){
-						Node dst = Network.get(Math.toIntExact(np.getNeighbors().get(i)));
-						EDSimulator.add(m.getTimer(), new RemoveMessage(node.getID(),node.getID(),my_pid,m.getPid(),m.getIdSrc()), node, pid);
-					}
+//					for(int i = 0 ; i< np.getNeighbors().size();i++){
+//						Node dst = Network.get(Math.toIntExact(np.getNeighbors().get(i)));
+//						EDSimulator.add(m.getTimer(), new RemoveMessage(node.getID(),node.getID(),my_pid,m.getPid(),m.getIdSrc()), node, pid);
+//					}
 			}
-//			for(int i = 0 ; i< np.getNeighbors().size();i++){
-//				Node dst = Network.get(Math.toIntExact(np.getNeighbors().get(i)));
-//				EDSimulator.add(m.getTimer(), new RemoveMessage(node.getID(),node.getID(),my_pid,m.getPid(),m.getIdSrc()), node, pid);
-//			}
+			for(int i = 0 ; i< np.getNeighbors().size();i++){
+				Node dst = Network.get(Math.toIntExact(np.getNeighbors().get(i)));
+				EDSimulator.add(m.getTimer(), new RemoveMessage(node.getID(),node.getID(),my_pid,m.getPid(),m.getIdSrc()), node, pid);
+			}//là je lance pour heartbeat a, alarme a-z Faux
 			EDSimulator.add(m.getProbe(), new HeartBeatMessage(node.getID(),node.getID(),my_pid,m), Network.get((int) m.getIdSrc()), pid); //lui il cause le bug trop de tache en exc
 		}
 		if (event instanceof HeartBeatMessage) {
