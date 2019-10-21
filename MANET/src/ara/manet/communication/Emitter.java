@@ -1,5 +1,6 @@
 package ara.manet.communication;
 
+import ara.manet.detection.NeighborhoodListener;
 import ara.util.Message;
 import peersim.core.Node;
 import peersim.edsim.EDProtocol;
@@ -25,5 +26,13 @@ public interface Emitter extends EDProtocol {
 
 	/* Renvoie le rayon d'emission/réception d'un noeud */
 	public int getScope();
+	
+	public void attach(NeighborhoodListener nl);
+	
+	public void detach(NeighborhoodListener nl);
+	
+	public void notifyAddListener(Node node, Long newId);
+	
+	public void notifyRemoveListener(Node node, Long newId);
 
 }

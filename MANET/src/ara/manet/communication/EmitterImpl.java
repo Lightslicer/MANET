@@ -1,7 +1,13 @@
 package ara.manet.communication;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import ara.manet.detection.HeartBeatMessage;
 import ara.manet.detection.NeighborProtocolImpl;
+import ara.manet.detection.NeighborhoodListener;
 import ara.manet.detection.ProbeMessage;
 import ara.manet.detection.RemoveMessage;
 import ara.manet.positioning.Position;
@@ -12,6 +18,7 @@ import peersim.core.CommonState;
 import peersim.core.Network;
 import peersim.core.Node;
 import peersim.edsim.EDSimulator;
+
 
 public class EmitterImpl implements Emitter {
 
@@ -24,12 +31,17 @@ public class EmitterImpl implements Emitter {
 	private final int scope;
 	private final Boolean variance;
 	
+	private Map<Long, Long> map; //map pour se souvenir de ses voisins
+	private List<NeighborhoodListener> list; //liste contenant les listener
+	
 	public EmitterImpl(String prefix) {
 		String tmp[] = prefix.split("\\.");
 		my_pid = Configuration.lookupPid(tmp[tmp.length - 1]);
 		this.latency = Configuration.getInt(prefix + "." + PAR_LATENCY);
 		this.scope = Configuration.getInt(prefix + "." + PAR_SCOPE);
 		this.variance = Configuration.getBoolean(prefix + "." + PAR_VARIANCE);
+		map = new HashMap<>();
+		list = new ArrayList<>();
 	}
 	
 	@Override
@@ -44,16 +56,11 @@ public class EmitterImpl implements Emitter {
 			if(!np.getNeighbors().contains(m.getIdSrc()))
 			if(m.getIdDest() == Emitter.ALL || m.getIdDest() == node.getID()) {
 					np.getNeighbors().add(m.getIdSrc());
-//					for(int i = 0 ; i< np.getNeighbors().size();i++){
-//						Node dst = Network.get(Math.toIntExact(np.getNeighbors().get(i)));
-//						EDSimulator.add(m.getTimer(), new RemoveMessage(node.getID(),node.getID(),my_pid,m.getPid(),m.getIdSrc()), node, pid);
-//					}
+					notifyAddListener(node, m.getIdSrc());
 			}
-			for(int i = 0 ; i< np.getNeighbors().size();i++){
-				Node dst = Network.get(Math.toIntExact(np.getNeighbors().get(i)));
-				EDSimulator.add(m.getTimer(), new RemoveMessage(node.getID(),node.getID(),my_pid,m.getPid(),m.getIdSrc()), node, pid);
-			}//là je lance pour heartbeat a, alarme a-z Faux
-			EDSimulator.add(m.getProbe(), new HeartBeatMessage(node.getID(),node.getID(),my_pid,m), Network.get((int) m.getIdSrc()), pid); //lui il cause le bug trop de tache en exc
+			EDSimulator.add(m.getTimer(), new RemoveMessage(node.getID(),node.getID(),my_pid,m.getPid(),m.getIdSrc()), node, pid);
+			map.put(m.getIdSrc(), CommonState.getTime()+m.getTimer());
+		
 		}
 		if (event instanceof HeartBeatMessage) {
 			HeartBeatMessage m = (HeartBeatMessage) event;
@@ -63,14 +70,13 @@ public class EmitterImpl implements Emitter {
 			
 			RemoveMessage m = (RemoveMessage) event;
 			NeighborProtocolImpl np = (NeighborProtocolImpl) node.getProtocol(m.getNeighborPid());
-			System.out.println("DEBUT__________________");
-			for(int i = 0 ; i< np.getNeighbors().size();i++){
-				System.out.println(np.getNeighbors().get(i));
-			}
-			np.getNeighbors().remove(m.getTargetId());
-			System.out.println("FIN__________________");
-			for(int i = 0 ; i< np.getNeighbors().size();i++){
-				System.out.println(np.getNeighbors().get(i));
+
+			if(map.containsKey(m.getTargetId())){
+				if(map.get(m.getTargetId()) <= CommonState.getTime()) {
+					//le voisin devrait être supprimé
+					np.getNeighbors().remove(m.getTargetId());
+					notifyRemoveListener(node, m.getTargetId());
+				}				
 			}
 		}
 
@@ -79,6 +85,7 @@ public class EmitterImpl implements Emitter {
 	@Override
 	public void emit(Node host, Message msg) {
 		// TODO Auto-generated method stub
+		Message m = (Message) msg;
 		int position_pid=Configuration.lookupPid("position");
 		PositionProtocolImpl p = (PositionProtocolImpl) host.getProtocol(position_pid);
 		Position pos = p.getCurrentPosition();
@@ -93,6 +100,7 @@ public class EmitterImpl implements Emitter {
 				}			
 			}
 		}
+		EDSimulator.add(m.getPid(), new HeartBeatMessage(host.getID(),host.getID(),my_pid,m), host, my_pid);
 	}
 
 	@Override
@@ -100,7 +108,7 @@ public class EmitterImpl implements Emitter {
 		// TODO Auto-generated method stub
 		return latency;
 	}
-
+	
 	@Override
 	public int getScope() {
 		// TODO Auto-generated method stub
@@ -112,9 +120,38 @@ public class EmitterImpl implements Emitter {
 		EmitterImpl em = null;
 		try {
 			em = (EmitterImpl) super.clone();
+			em.map = new HashMap<>();
 		}
 		catch( CloneNotSupportedException e ) {} // never happens
 		return em;
+	}
+
+	@Override
+	public void attach(NeighborhoodListener nl) {
+		list.add(nl);
+		
+	}
+
+	@Override
+	public void detach(NeighborhoodListener nl) {
+		list.remove(nl);
+		
+	}
+
+	@Override
+	public void notifyAddListener(Node node, Long newId) {
+		for(int i=0; i<list.size(); i++) {
+			System.out.println(list.size());
+			list.get(i).newNeighborDetected(node, newId);
+		}
+		
+	}
+	
+	@Override
+	public void notifyRemoveListener(Node node, Long newId) {
+		for(int i=0; i<list.size(); i++) {
+			list.get(i).lostNeighborDetected(node, newId);
+		}
 	}
 
 }

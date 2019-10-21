@@ -12,11 +12,11 @@ protocol.position.pause 200
 protocol.emit EmitterImpl
 protocol.emit.latency 50
 protocol.emit.scope 200
-protocol.emit.variance 1
+protocol.emit.variance FALSE
 
 protocol.neighbor NeighborProtocolImpl
-protocol.neighbor.probe 500
-protocol.neighbor.timer 2000
+protocol.neighbor.probe 100
+protocol.neighbor.timer 100
 
 initial_position_strategy FullRandom
 initial_position_strategy.positionprotocol position
