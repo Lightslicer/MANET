@@ -1,4 +1,5 @@
-Exo1 Q1
+Exo1 
+Q1
 si le noeud est immobile : configurer sa vitesse et destination
 puis calculer distance-destination et distance_to_next que le noeud peut parcourir 
 en 1000miliseconds(?)
@@ -10,3 +11,10 @@ si arrivé :
     set noeud immobile et add event pause
 sinon
     add next event
+    
+
+Q2
+Connected random -> tous les noeuds se rapprochent du centre et s'y déplacent
+FullRandom -> positions de départ et déplacements aléatoire
+InitialPositionConnectedRing -> les noeuds forment un cercele
+InitialPositionRandomConnected -> 

@@ -18,11 +18,13 @@ protocol.neighbor NeighborProtocolImpl
 protocol.neighbor.probe 100
 protocol.neighbor.timer 100
 
-initial_position_strategy FullRandom
+initial_position_strategy InitialPositionConnectedRing
 initial_position_strategy.positionprotocol position
+initial_position_strategy.emitter emit
 
-next_destination_strategy FullRandom
+next_destination_strategy ConnectedRandom
 next_destination_strategy.positionprotocol position
+next_destination_strategy.emitter emit
 
 control.monitor GraphicalMonitor
 control.monitor.positionprotocol position
