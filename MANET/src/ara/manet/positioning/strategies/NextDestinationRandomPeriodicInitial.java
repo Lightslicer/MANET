@@ -44,6 +44,7 @@ public class NextDestinationRandomPeriodicInitial implements NextDestinationStra
 		switch (state) {
 		case RANDOM:
 			res = randompositionning.getNextDestination(host, speed);
+			System.out.println(CommonState.getTime());
 			if (CommonState.getTime() >= nextdate_to_goback) {
 				state = State.GOBACK_INITIAL;
 				nodes_at_initialposition = new HashSet<>();
@@ -53,6 +54,7 @@ public class NextDestinationRandomPeriodicInitial implements NextDestinationStra
 		case GOBACK_INITIAL:
 			Position initial = PositioningConfiguration.getInitialPositionStrategy().getInitialPosition(host);
 			res = initial;
+			System.out.println("DEBUT GOBACK "+CommonState.getTime());
 			if (randompositionning.getPositionProcotol(host).getCurrentPosition().equals(initial)
 					&& !nodes_at_initialposition.contains(host))
 				nodes_at_initialposition.add(host);
