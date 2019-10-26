@@ -21,11 +21,11 @@ public class Initialisation implements Control{
 		int position_pid=Configuration.lookupPid("position");
 		int neighbor_pid=Configuration.lookupPid("neighbor");
 		int emitter_pid=Configuration.lookupPid("emit");
+		
 		for(int i = 0;i<Network.size();i++) {
 			Node src = Network.get(i);
 			PositionProtocolImpl pp = (PositionProtocolImpl) src.getProtocol(position_pid);
 			pp.initialiseCurrentPosition(src);
-			pp.processEvent(src, position_pid, "LOOPEVENT");
 			//Ca a l'air de marche
 			
 		} 
@@ -34,6 +34,8 @@ public class Initialisation implements Control{
 			Node src = Network.get(i);			
 			NeighborProtocolImpl np = (NeighborProtocolImpl) src.getProtocol(neighbor_pid);
 			np.heartbeat(src);
+			PositionProtocolImpl pp = (PositionProtocolImpl) src.getProtocol(position_pid);
+			pp.processEvent(src, position_pid, "LOOPEVENT");
 			
 		}
 		Node src = Network.get(0);

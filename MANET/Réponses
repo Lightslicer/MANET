@@ -25,3 +25,13 @@ InitialPositionRandomConnected -> les noeuds sont regroupés, quelque part dans 
 NextDestinationConnectedOneMove -> 
 NextDestinationImmobility -> les noeuds restent immobiles
 NextDestinationRandomPeriodicInitial -> Les noeuds se déplacent jusqu'à un point aléatoire. Une fois atteint, soit ils se rendent à un autre point aléatoire, soit le temps indiqué par l'utilisateur a été atteint, auquel cas ils retournent à leur position
+
+
+Exo2
+Q1
+Node value -> Dans notre système, chaque noeud possède une valeur entière similaire, obtenue aléatoirement
+Unique and Ordered Node IDs -> A leur création, chaque noeud se voit attribué un ID unique
+Links -> 
+Node Behavior -> Le "crash" des nodes est simulé grâce à leur déplacements, les rendant aléatoirement capable de rentrer ou sortir dans un réseau sanss prévenir
+Node-to-Node Communications -> 
+Buffer Size -> 
