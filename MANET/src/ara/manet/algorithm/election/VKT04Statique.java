@@ -147,6 +147,19 @@ public class VKT04Statique implements ElectionProtocol, Monitorable, NeighborPro
 			if (ev.equals(init_value_event)) {
 				value = (int) node.getID();
 				leaderValue = value;
+				int position_pid=Configuration.lookupPid("position");
+				PositionProtocolImpl p = (PositionProtocolImpl) Network.get(value).getProtocol(position_pid);
+				Position pos = p.getCurrentPosition();
+				for(int i = 0 ; i< Network.size();i++){
+					Node dst = Network.get(i);
+					if(dst.equals(Network.get(value))) {// éviter d'ajouter soi-meme
+						continue;
+					}
+					PositionProtocolImpl pp = (PositionProtocolImpl) dst.getProtocol(position_pid);
+					if((pp.getCurrentPosition().distance(pos)) <= Configuration.getInt("protocol.vkt." + PAR_SCOPE)) {
+						neighbors.add(dst.getID());
+					}
+				}
 				return;
 			}
 		}
@@ -155,19 +168,7 @@ public class VKT04Statique implements ElectionProtocol, Monitorable, NeighborPro
 	@Override
 	public List<Long> getNeighbors() {
 		// TODO Auto-generated method stub
-		int position_pid=Configuration.lookupPid("position");
-		PositionProtocolImpl p = (PositionProtocolImpl) Network.get(value).getProtocol(position_pid);
-		Position pos = p.getCurrentPosition();
-		for(int i = 0 ; i< Network.size();i++){
-			Node dst = Network.get(i);
-			if(dst.equals(Network.get(value))) {// éviter d'ajouter soi-meme
-				continue;
-			}
-			PositionProtocolImpl pp = (PositionProtocolImpl) dst.getProtocol(position_pid);
-			if((pp.getCurrentPosition().distance(pos)) <= Configuration.getInt("protocol.vkt." + PAR_SCOPE)) {
-				neighbors.add(dst.getID());
-			}
-		}
+		
 		return neighbors;
 	}
 
