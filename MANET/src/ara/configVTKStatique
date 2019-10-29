@@ -1,4 +1,4 @@
-network.size 5
+network.size 10
 random.seed 10
 simulation.endtime 50000
 
@@ -14,28 +14,30 @@ protocol.emit.latency 50
 protocol.emit.scope 200
 protocol.emit.variance FALSE
 
-protocol.neighbor NeighborProtocolImpl
-protocol.neighbor.probe 100
-protocol.neighbor.timer 100
+protocol.vkt VKT04Statique
+protocol.vkt.latency 50
+protocol.vkt.scope 200
+protocol.vkt.probe 100
+protocol.vkt.timer 100
 
-initial_position_strategy FullRandom
-initial_position_strategy.positionprotocol position
+initial_position_strategy InitialPositionConnectedRing
 initial_position_strategy.emitter emit
+initial_position_strategy.positionprotocol position
 
-next_destination_strategy NextDestinationConnectedOneMove
+next_destination_strategy NextDestinationImmobility
 next_destination_strategy.positionprotocol position
-next_destination_strategy.emitter emit
 next_destination_strategy.random_dest_period 20000
 
 control.monitor GraphicalMonitor
 control.monitor.positionprotocol position
+control.monitor.neighborprotocol vkt
+control.monitor.monitorableprotocol vkt
 control.monitor.emitter emit
-control.monitor.neighborprotocol neighbor
 control.monitor.time_slow 0.0002
 control.monitor.from 0
 control.monitor.until 50000
 control.monitor.step 1
 
 
-init.i Initialisation
+init.i InitialisationVTKStatique
 

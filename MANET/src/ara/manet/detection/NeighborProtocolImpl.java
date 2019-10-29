@@ -12,13 +12,11 @@ public class NeighborProtocolImpl implements NeighborProtocol {
 	private static final String PAR_PROBE = "probe";
 	private static final String PAR_TIMER = "timer";
 	private static final String PAR_EMITTER = "emit";
-//	private static final String PAR_LISTENER = "neighborhoodlistener";
 	
 	private final int my_pid;
 	private final int probe;
 	private final int timer;
 	private final Emitter emitter;
-//	private final NeighborhoodListener neighborhoodlistener;
 	
 	
 	private List<Long> neighbors ;
@@ -29,7 +27,6 @@ public class NeighborProtocolImpl implements NeighborProtocol {
 		this.probe = Configuration.getInt(prefix + "." + PAR_PROBE);
 		this.timer = Configuration.getInt(prefix + "." + PAR_TIMER);
 		this.emitter = (Emitter) Configuration.getInstance("protocol." + PAR_EMITTER);
-//		this.neighborhoodlistener = (NeighborhoodListener) Configuration.getInstance("protocol." + PAR_LISTENER);
 		this.neighbors = new ArrayList<Long>();
 	}
 	

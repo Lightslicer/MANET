@@ -93,6 +93,9 @@ public class EmitterImpl implements Emitter {
 		for(int i = 0 ; i< Network.size();i++){
 			Node dst = Network.get(i);
 			PositionProtocolImpl pp = (PositionProtocolImpl) dst.getProtocol(position_pid);
+			if(dst.equals(host)) {// éviter d'ajouter soimeme
+				continue;
+			}
 			if((pp.getCurrentPosition().distance(pos)) <= this.getScope()) {
 				if(variance) {
 					EDSimulator.add(CommonState.r.nextPoisson(latency),msg, dst, my_pid);
