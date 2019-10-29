@@ -51,6 +51,7 @@ public class EmitterImpl implements Emitter {
 			throw new RuntimeException("Receive Event for wrong protocol");
 		}
 		if (event instanceof ProbeMessage) { // A la réception de heartbeat
+			//EXO 2 Q1 hypothése 5 à réaliser pour test scope à réception
 			ProbeMessage m = (ProbeMessage) event;
 			NeighborProtocolImpl np = (NeighborProtocolImpl) node.getProtocol(m.getPid());
 			if(!np.getNeighbors().contains(m.getIdSrc()))

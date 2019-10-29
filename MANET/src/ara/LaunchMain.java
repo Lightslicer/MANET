@@ -4,7 +4,7 @@ import peersim.Simulator;
 
 
 public class LaunchMain {
-	private static final String dir = "/users/nfs/Etu8/3520328/git/MANET/";
+	private static final String dir = "/home/aurora/git/MANET/";
 	public static void main(String[] args) {
 		
 		String[] path = { dir+"MANET/src/ara/config"};

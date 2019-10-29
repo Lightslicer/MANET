@@ -20,10 +20,18 @@ public class VKT04Statique implements ElectionProtocol{
 	public int getValue() {
 		// TODO Auto-generated method stub
 		return 0;
-	}
+	}	
 	
+	@Override
 	public VKT04Statique clone() {
-		return null;
+		VKT04Statique vkt = null;
+		try {
+			vkt = (VKT04Statique) super.clone();
+			//vkt.neighbors = new ArrayList<Long>();
+		}
+		catch( CloneNotSupportedException e ) {} // never happens
+		return vkt;
 	}
+
 
 }
