@@ -1,4 +1,4 @@
-network.size 5
+network.size 30
 random.seed 10
 simulation.endtime 50000
 
@@ -13,12 +13,14 @@ protocol.emit EmitterImpl
 protocol.emit.latency 50
 protocol.emit.scope 200
 protocol.emit.variance FALSE
+protocol.emit.positionProtocol position
 
 protocol.neighbor NeighborProtocolImpl
 protocol.neighbor.probe 100
 protocol.neighbor.timer 100
+protocol.neighbor.emitter emit
 
-initial_position_strategy FullRandom
+initial_position_strategy InitialPositionConnectedRing
 initial_position_strategy.positionprotocol position
 initial_position_strategy.emitter emit
 
@@ -35,7 +37,6 @@ control.monitor.time_slow 0.0002
 control.monitor.from 0
 control.monitor.until 50000
 control.monitor.step 1
-
 
 init.i Initialisation
 

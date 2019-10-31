@@ -15,10 +15,6 @@ protocol.emit.scope 200
 protocol.emit.variance FALSE
 
 protocol.vkt VKT04Statique
-protocol.vkt.latency 50
-protocol.vkt.scope 200
-protocol.vkt.probe 100
-protocol.vkt.timer 100
 
 initial_position_strategy InitialPositionConnectedRing
 initial_position_strategy.emitter emit

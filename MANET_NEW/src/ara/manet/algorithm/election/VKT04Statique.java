@@ -7,6 +7,7 @@ import java.util.Set;
 
 import ara.manet.Monitorable;
 import ara.manet.detection.NeighborProtocol;
+import ara.manet.detection.NeighborhoodListener;
 import ara.manet.positioning.Position;
 import ara.manet.positioning.PositionProtocolImpl;
 import peersim.config.Configuration;
@@ -210,6 +211,30 @@ public class VKT04Statique implements ElectionProtocol, Monitorable, NeighborPro
 		}
 		catch( CloneNotSupportedException e ) {} // never happens
 		return vkt;
+	}
+
+	@Override
+	public void attach(NeighborhoodListener nl) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void detach(NeighborhoodListener nl) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void notifyAddListener(Node node, Long newId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void notifyRemoveListener(Node node, Long newId) {
+		// TODO Auto-generated method stub
+		
 	}
 
 

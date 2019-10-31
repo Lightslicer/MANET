@@ -6,7 +6,11 @@ import java.util.List;
 import java.util.Set;
 
 import ara.manet.Monitorable;
+import ara.manet.communication.Emitter;
 import ara.manet.detection.NeighborProtocol;
+import ara.manet.detection.NeighborhoodListener;
+import ara.manet.detection.ProbeMessage;
+import ara.manet.detection.ReplyMessage;
 import ara.manet.positioning.Position;
 import ara.manet.positioning.PositionProtocolImpl;
 import peersim.config.Configuration;
@@ -15,45 +19,55 @@ import peersim.core.Node;
 import peersim.edsim.EDSimulator;
 
 
-public class VKT04Statique implements ElectionProtocol, Monitorable, NeighborProtocol{
+public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, NeighborhoodListener{
 
 	public enum Etat {
 		NOTKNOWN,KNOWN,LEADER
 	}
-	
+	private static final String PAR_PROBE = "probe";
+	private static final String PAR_TIMER = "timer";
 	private static final String PAR_SCOPE = "scope";
 	private static final String PAR_LATENCY = "latency";
 	public static final String init_value_event = "INITEVENT";
-	
-	private int value;
-	private long leaderId;
-	
-	private int leaderValue;
-	private long leaderIdInformation;
-	private long parent;
-	private int childrenCount;
-	private int ackCount;
-	private Set<Long> ackHear;
-	private Etat state;
-	
-	
+	private static final String PAR_EMITTER = "emit";
 	private final int latency;
 	private final int scope;
 	private final int my_pid;
-	private List<Long> neighbors ;
+	private final Emitter emitter;
+	private final int probe;
+	private final int timer;
 	
-	public VKT04Statique(String prefix) {
+	private int value;
+	
+	
+	private int leaderValue;
+	private long leaderIdInformation;
+	
+	private Etat state;
+	
+	private boolean inElection;
+	private long parent;
+	private boolean ackParentDone;
+	private long leaderId;	
+	private List<Long> neighbors;
+	private Set<Long> ackHear;
+	private int num; //Tuple <num,node ID>
+	
+	public VKT04(String prefix) {
 		String tmp[] = prefix.split("\\.");
 		my_pid = Configuration.lookupPid(tmp[tmp.length - 1]);
 		this.latency = Configuration.getInt("protocol.emit." + PAR_LATENCY);
 		this.scope = Configuration.getInt("protocol.emit." + PAR_SCOPE);
+		this.probe = Configuration.getInt(prefix + "." + PAR_PROBE);
+		this.timer = Configuration.getInt(prefix + "." + PAR_TIMER);
+		this.emitter = (Emitter) Configuration.getInstance("protocol." + PAR_EMITTER);
 		this.neighbors = new ArrayList<Long>();
 		this.leaderId = -1;
 		this.parent = -1;
 		leaderValue = -1;
-		childrenCount = 0;
 		state = Etat.NOTKNOWN;
 		ackHear = new HashSet<>();
+		num = 0;
 	}
 	
 	@Override
@@ -135,6 +149,12 @@ public class VKT04Statique implements ElectionProtocol, Monitorable, NeighborPro
 				}
 			}
 		}
+		if (event instanceof ProbeMessage) {
+			ProbeMessage m = (ProbeMessage) event;
+		}
+		if (event instanceof ReplyMessage) {
+			
+		}
 		//  init process to configure node value
 		if (event instanceof String) {
 			String ev = (String) event;
@@ -155,7 +175,9 @@ public class VKT04Statique implements ElectionProtocol, Monitorable, NeighborPro
 						ackHear.add(dst.getID());
 					}
 				}
-			
+				long idSrc = node.getID();
+				ProbeMessage m = new ProbeMessage(idSrc,(long)-2,my_pid);
+				emitter.emit(node, m);
 				return;
 			}
 		}
@@ -163,8 +185,7 @@ public class VKT04Statique implements ElectionProtocol, Monitorable, NeighborPro
 
 	@Override
 	public List<Long> getNeighbors() {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub		
 		return neighbors;
 	}
 
@@ -200,16 +221,49 @@ public class VKT04Statique implements ElectionProtocol, Monitorable, NeighborPro
 			return 2;
 		}
 	}
+	
+	public void newNeighborDetected(Node host, long id_new_neighbor) {
+		System.out.println("Ajout du voisin "+id_new_neighbor+"dans la liste des voisins de "+host.getID());
+	}
+
+	/* appelé lorsque le noeud host détecte la perte d'un voisin */
+	public void lostNeighborDetected(Node host, long id_lost_neighbor) {
+		System.out.println("Suppresion du voisin "+id_lost_neighbor+"dans la liste des voisins de "+host.getID());
+	}
 
 	@Override
-	public VKT04Statique clone() {
-		VKT04Statique vkt = null;
+	public VKT04 clone() {
+		VKT04 vkt = null;
 		try {
-			vkt = (VKT04Statique) super.clone();
+			vkt = (VKT04) super.clone();
 			vkt.neighbors = new ArrayList<Long>();
 		}
 		catch( CloneNotSupportedException e ) {} // never happens
 		return vkt;
+	}
+
+	@Override
+	public void attach(NeighborhoodListener nl) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void detach(NeighborhoodListener nl) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void notifyAddListener(Node node, Long newId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void notifyRemoveListener(Node node, Long newId) {
+		// TODO Auto-generated method stub
+		
 	}
 
 

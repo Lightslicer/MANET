@@ -1,26 +1,26 @@
 package ara.manet;
 
+import java.util.Random;
 
+import ara.manet.algorithm.election.ElectionMessage;
+import ara.manet.algorithm.election.VKT04Statique;
 import ara.manet.communication.EmitterImpl;
-import ara.manet.detection.NeighborProtocolImpl;
-import ara.manet.detection.NeighborhoodListenerImpl;
 import ara.manet.positioning.PositionProtocolImpl;
 import peersim.config.Configuration;
 import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
 
-public class Initialisation implements Control{
+public class InitialisationVTKStatique implements Control{
 	
-	public  Initialisation(String prefix) {}
+	public  InitialisationVTKStatique(String prefix) {}
 	
 	@Override
 	public boolean execute() {
 				
-		
+		Random r = new Random();
 		int position_pid=Configuration.lookupPid("position");
-		int neighbor_pid=Configuration.lookupPid("neighbor");
-		int emitter_pid=Configuration.lookupPid("emit");
+		int vkt_pid=Configuration.lookupPid("vkt");
 		
 		for(int i = 0;i<Network.size();i++) {
 			Node src = Network.get(i);
@@ -29,18 +29,17 @@ public class Initialisation implements Control{
 			//Ca a l'air de marche
 			
 		} 
-		NeighborhoodListenerImpl listener = new NeighborhoodListenerImpl();
+		//NeighborhoodListenerImpl listener = new NeighborhoodListenerImpl();
 		for(int i = 0;i<Network.size();i++) {
 			Node src = Network.get(i);			
-			NeighborProtocolImpl np = (NeighborProtocolImpl) src.getProtocol(neighbor_pid);
-			np.heartbeat(src);
-			PositionProtocolImpl pp = (PositionProtocolImpl) src.getProtocol(position_pid);
-			pp.processEvent(src, position_pid, "LOOPEVENT");
+			VKT04Statique vktp = (VKT04Statique) src.getProtocol(vkt_pid);
+			vktp.processEvent(src, vkt_pid, "INITEVENT");
 			
 		}
 		Node src = Network.get(0);
-		EmitterImpl ep = (EmitterImpl) src.getProtocol((emitter_pid));
-		//ep.attach(listener);
+		VKT04Statique vktp = (VKT04Statique) src.getProtocol(vkt_pid);
+		ElectionMessage msg = new ElectionMessage(src.getID(),src.getID(),vkt_pid,src.getID());
+		vktp.processEvent(src, vkt_pid, msg);
 		return false;
 	}
 	

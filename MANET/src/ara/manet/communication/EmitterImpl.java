@@ -71,7 +71,6 @@ public class EmitterImpl implements Emitter {
 			
 			RemoveMessage m = (RemoveMessage) event;
 			NeighborProtocolImpl np = (NeighborProtocolImpl) node.getProtocol(m.getNeighborPid());
-
 			if(map.containsKey(m.getTargetId())){
 				if(map.get(m.getTargetId()) <= CommonState.getTime()) {
 					//le voisin devrait être supprimé
@@ -145,7 +144,6 @@ public class EmitterImpl implements Emitter {
 	@Override
 	public void notifyAddListener(Node node, Long newId) {
 		for(int i=0; i<list.size(); i++) {
-			System.out.println(list.size());
 			list.get(i).newNeighborDetected(node, newId);
 		}
 		
