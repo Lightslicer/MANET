@@ -1,4 +1,4 @@
-network.size 10
+network.size 30
 random.seed 10
 simulation.endtime 50000
 
@@ -15,13 +15,16 @@ protocol.emit.scope 200
 protocol.emit.variance FALSE
 protocol.emit.positionProtocol position
 
-protocol.vkt VKT04Statique
+protocol.vkt VKT04
+protocol.vkt.emit emit
+protocol.vkt.probe 100
+protocol.vkt.timer 100
 
 initial_position_strategy InitialPositionConnectedRing
 initial_position_strategy.emitter emit
 initial_position_strategy.positionprotocol position
 
-next_destination_strategy NextDestinationImmobility
+next_destination_strategy FullRandom
 next_destination_strategy.positionprotocol position
 next_destination_strategy.random_dest_period 20000
 
@@ -36,5 +39,5 @@ control.monitor.until 50000
 control.monitor.step 1
 
 
-init.i InitialisationVTKStatique
+init.i InitialisationVTK
 

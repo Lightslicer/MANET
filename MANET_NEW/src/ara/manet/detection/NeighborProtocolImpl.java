@@ -91,8 +91,8 @@ public class NeighborProtocolImpl implements NeighborProtocol, EDProtocol {
 			//Si je recois mon ProbeMessage relancer heartbeat dans probe tps
 			if (idsrc == node.getID()) {
 				//emit(node, my_pid,new HeartBeatMessage(node.getID(), node.getID(), my_pid));
-				processEvent(node,my_pid,new HeartBeatMessage(idsrc,idsrc,my_pid));
-				//EDSimulator.add(periodeToSendProbe, new HeartBeatMessage(idsrc,idsrc,my_pid), node, my_pid);
+				//processEvent(node,my_pid,new HeartBeatMessage(idsrc,idsrc,my_pid));
+				EDSimulator.add(periodeToSendProbe, new HeartBeatMessage(idsrc,idsrc,my_pid), node, my_pid);
 			}else {
 				if (!idNeighbor.contains((long) idsrc)) {
 					idNeighbor.add(pbmsg.getIdSrc());					
