@@ -208,7 +208,12 @@ public class VKT04Statique implements ElectionProtocol, Monitorable, NeighborPro
 		try {
 			vkt = (VKT04Statique) super.clone();
 			vkt.neighbors = new ArrayList<Long>();
-			vkt.c
+			vkt.leaderId = -1;
+			vkt.parent = -1;
+			vkt.leaderValue = -1;
+			vkt.childrenCount = 0;
+			vkt.state = Etat.NOTKNOWN;
+			vkt.ackHear = new HashSet<>();
 		}
 		catch( CloneNotSupportedException e ) {} // never happens
 		return vkt;
