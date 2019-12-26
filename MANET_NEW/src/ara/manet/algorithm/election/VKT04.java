@@ -59,6 +59,7 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 	private long leaderId;	
 	private List<Long> neighbors;
 	private Set<Long> ackHeard;
+	private Pair<Integer,Long> computation_index;
 	private int computation_num; //Tuple <num,node ID>
 	private Long computation_id;
 	
@@ -76,9 +77,10 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 		this.parent = -1;
 		inElection = false;
 		leaderValue = -1;
-		state = Etat.NOTKNOWN;
+		state = Etat.LEADER;
 		ackHeard = new HashSet<>();
 		timeout_map = new HashMap<>();
+		computation_index = new Pair<Integer, Long>(0, -1L);
 		computation_num = 0;
 		computation_id = -1L;
 	}
@@ -102,12 +104,12 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 				if(m.getSource() != node.getID()) {// si Noeud node n'est pas la source d'éléction
 					parent = m.getIdSrc();
 					ackHeard.remove(parent);
-					computation_num = m.getComputationNum();
-					computation_id = m.getComputationId();
+					computation_index = m.getComputationIndex();
 				}
 				else {//si je suis l'initiateur d'élection
 					computation_num++;
-					computation_id = m.getComputationId();
+					computation_id = m.getSource();
+					computation_index = new Pair<Integer, Long>(computation_num, computation_id);
 				}
 				inElection = true;
 				if(neighbors.size() != 0) {
@@ -116,7 +118,7 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 					if(dest.getID() == parent) { //this neighbor is parent dont propagete ElectionMessage
 						continue; 
 					}
-					msg = new ElectionMessage(node.getID(), dest.getID(), my_pid,m.getSource(),computation_num,computation_id);
+					msg = new ElectionMessage(node.getID(), dest.getID(), my_pid,m.getSource(),computation_index);
 					emitter.emit(node, msg);
 //					EDSimulator.add(latency,msg, dest, my_pid);
 				}
@@ -129,11 +131,10 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 			}else {//conflict need to test computation-index
 				Node dest = Network.get((int) m.getIdSrc());
 				VKT04 vktp = (VKT04) dest.getProtocol(my_pid);
-				if( (m.getComputationNum() > computation_num) || (m.getComputationNum()==computation_num && m.getComputationId() > computation_id) ) {
+				if( (m.getComputationNum() > computation_index.getNum()) || (m.getComputationNum()==computation_index.getNum() && m.getComputationId() > computation_index.getId()) ) {
 					//System.out.println("noeaud "+node.getID()+" a recu un computation index sup de "+m.getIdSrc()+" "+computation_num+" "+m.getComputationNum()+" "+m.getComputationId()+" "+computation_id);
 					parent = m.getIdSrc();
-					computation_num = m.getComputationNum();
-					computation_id = m.getComputationId();
+					computation_index = m.getComputationIndex();
 					ackHeard.clear();
 					ackHeard.addAll(neighbors);
 					ackHeard.remove(parent);
@@ -142,13 +143,11 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 						if(dest.getID() == parent) { //this neighbor is parent dont propagete ElectionMessage
 							continue; 
 						}
-						msg = new ElectionMessage(node.getID(), dest.getID(), my_pid,m.getSource(),computation_num,computation_id);
+						msg = new ElectionMessage(node.getID(), dest.getID(), my_pid,m.getSource(),computation_index);
 						emitter.emit(node, msg);
-//						EDSimulator.add(latency,msg, dest, my_pid);
 					}
 				}else {
 					AckMessage amsg = new AckMessage(node.getID(), dest.getID(), my_pid,-1,-1);
-					//EDSimulator.add(latency,amsg, dest, my_pid);
 					emitter.emit(node, amsg);
 				}
 			}
@@ -211,6 +210,7 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 				if(leaderValue < m.getLeaderValue()) {
 					leaderValue = m.getLeaderValue();
 					leaderId = m.getIdLeader();
+					state = Etat.KNOWN;
 					for(long neighbor : this.getNeighbors()) {
 						Node dest = Network.get((int) neighbor);
 						if(dest.equals(node)) {// éviter d'ajouter soimeme
@@ -226,12 +226,9 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 			ProbeMessage pbmsg = (ProbeMessage) event;
 			int idsrc = (int) pbmsg.getIdSrc();
 			if (idsrc == node.getID()) {//Si je recois mon ProbeMessage relancer heartbeat dans probe tps
-				//emit(node, my_pid,new HeartBeatMessage(node.getID(), node.getID(), my_pid));
-				//processEvent(node,my_pid,new HeartBeatMessage(idsrc,idsrc,my_pid));
-				EDSimulator.add(probe, new HeartBeatMessage(idsrc,idsrc,my_pid), node, my_pid);
+				emitter.emit(node, new ProbeMessage(idsrc,Emitter.ALL,my_pid));
 			}else {
 				emitter.emit(node, new ReplyMessage(node.getID(),idsrc,my_pid));
-				
 			}
 		}
 		if (event instanceof ReplyMessage) {
@@ -243,7 +240,7 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 				//new neighor Listener
 				newNeighborDetected(node, idsrc);
 			}
-			EDSimulator.add(timer+49, new RemoveMessage(node.getID(),node.getID(),my_pid, idsrc), node, my_pid); // timer+49 to adjust visual effect
+			EDSimulator.add(timer, new RemoveMessage(node.getID(),node.getID(),my_pid, idsrc), node, my_pid); // timer+49 to adjust visual effect
 			timeout_map.put(m.getIdSrc(), CommonState.getTime()+timer);
 		}
 		if (event instanceof HeartBeatMessage) {
@@ -269,17 +266,17 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 				int position_pid=Configuration.lookupPid("position");
 				PositionProtocolImpl p = (PositionProtocolImpl) Network.get((int) node.getID()).getProtocol(position_pid);
 				Position pos = p.getCurrentPosition();
-				for(int i = 0 ; i< Network.size();i++){
-					Node dst = Network.get(i);
-					if(dst.equals(Network.get(value))) {// éviter d'ajouter soi-meme
-						continue;
-					}
-					PositionProtocolImpl pp = (PositionProtocolImpl) dst.getProtocol(position_pid);
-					if((pp.getCurrentPosition().distance(pos)) <= scope) {
-						neighbors.add(dst.getID());
-						ackHeard.add(dst.getID());
-					}
-				}
+//				for(int i = 0 ; i< Network.size();i++){
+//					Node dst = Network.get(i);
+//					if(dst.equals(Network.get(value))) {// éviter d'ajouter soi-meme
+//						continue;
+//					}
+//					PositionProtocolImpl pp = (PositionProtocolImpl) dst.getProtocol(position_pid);
+//					if((pp.getCurrentPosition().distance(pos)) <= scope) {
+//						neighbors.add(dst.getID());
+//						ackHeard.add(dst.getID());
+//					}
+//				}
 				return;
 			}
 		}
@@ -330,7 +327,7 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 			LeaderMessage lmsg = new LeaderMessage(host.getID(), id_new_neighbor, my_pid, leaderId,leaderValue);
 			emitter.emit(host, lmsg);
 		}else {
-			ElectionMessage emsg = new ElectionMessage(host.getID(),host.getID(),my_pid, host.getID(), computation_num,value);
+			ElectionMessage emsg = new ElectionMessage(host.getID(),host.getID(),my_pid, host.getID(), computation_index);
 			emitter.emit(host, emsg);
 		}
 			
@@ -346,15 +343,15 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 			}else {// si parent perdu pd election
 				parent = -1;
 				state = Etat.NOTKNOWN;
-				ElectionMessage emsg = new ElectionMessage(host.getID(),host.getID(),my_pid, host.getID(), computation_num,value);
+				ElectionMessage emsg = new ElectionMessage(host.getID(),host.getID(),my_pid, host.getID(), computation_index);
 				emitter.emit(host, emsg);
 			}
 		}else {
 			if(parent == id_lost_neighbor) {
 				parent = -1;
 				state = Etat.NOTKNOWN;
-				System.out.println("Suppresion du voisin "+id_lost_neighbor+" dans la liste des voisins de "+host.getID());
-				ElectionMessage emsg = new ElectionMessage(host.getID(),host.getID(),my_pid, host.getID(), computation_num,value);
+				//System.out.println("Suppresion du voisin "+id_lost_neighbor+" dans la liste des voisins de "+host.getID());
+				ElectionMessage emsg = new ElectionMessage(host.getID(),host.getID(),my_pid, host.getID(), computation_index);
 				emitter.emit(host, emsg);	
 			}
 		}
@@ -403,6 +400,16 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 	public void notifyRemoveListener(Node node, Long newId) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	public List<String> infos(Node host) {
+		List<String> res = new ArrayList<String>();
+		res.add("Node" + host.getID());
+		res.add("Voisins " + neighbors);
+		res.add("Leader " + leaderId);
+		res.add("élection " + computation_index.getId());
+		return res;
 	}
 
 
