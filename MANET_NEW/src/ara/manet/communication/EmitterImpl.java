@@ -2,6 +2,7 @@ package ara.manet.communication;
 
 import java.util.List;
 
+import ara.manet.algorithm.election.BeaconMessage;
 import ara.manet.detection.NeighborhoodListener;
 import ara.manet.positioning.Position;
 import ara.manet.positioning.PositionProtocolImpl;
@@ -62,6 +63,9 @@ public class EmitterImpl implements Emitter {
 			EDSimulator.add(latency, msg, node, mypid);
 		// sinon envoie du message à tout le monde donc calcul si voisin ou non 
 		} else if (msg.getIdDest() == Emitter.ALL) { // si c'est un broadcast pour tout le monde
+			if(msg instanceof BeaconMessage) {
+				System.out.println("beacon");
+			}
 			for (int i = 0; i < Network.size(); i++) {
 				Node voisin = Network.get(i);
 				Position drc = ((PositionProtocolImpl) voisin.getProtocol(position_pid)).getCurrentPosition();

@@ -37,6 +37,8 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 	private static final String PAR_LATENCY = "latency";
 	public static final String init_value_event = "INITEVENT";
 	private static final String PAR_EMITTER = "emit";
+	private static final String PAR_BEACON_INTERVAL = "beaconinterval";
+	private static final String PAR_MAX_BEACON_LOSS = "maxbeaconloss";
 
 	
 	private final int emitter_pid;
@@ -46,6 +48,8 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 	private final Emitter emitter;
 	private final int probe;
 	private final int timer;
+	private final int beacon_interval;
+	private final int max_beacon_loss;
 	
 	private int value;
 	private Map<Long, Long> timeout_map; //map pour se souvenir de ses voisins et leur timeout
@@ -62,6 +66,8 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 	private Pair<Integer,Long> computation_index;
 	private int computation_num; //Tuple <num,node ID>
 	private Long computation_id;
+	private int beacon_loss_count;
+	private int arrived_beacon_counter;
 	
 	public VKT04(String prefix) {
 		String tmp[] = prefix.split("\\.");
@@ -71,6 +77,8 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 		this.scope = Configuration.getInt("protocol.emit." + PAR_SCOPE);
 		this.probe = Configuration.getInt(prefix + "." + PAR_PROBE);
 		this.timer = Configuration.getInt(prefix + "." + PAR_TIMER);
+		this.beacon_interval = Configuration.getInt(prefix + "." + PAR_BEACON_INTERVAL);
+		this.max_beacon_loss = Configuration.getInt(prefix + "." + PAR_MAX_BEACON_LOSS);
 		this.emitter = (Emitter) Configuration.getInstance("protocol." + PAR_EMITTER);
 		this.neighbors = new ArrayList<Long>();
 		this.leaderId = -1;
@@ -83,6 +91,8 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 		computation_index = new Pair<Integer, Long>(0, -1L);
 		computation_num = 0;
 		computation_id = -1L;
+		beacon_loss_count = 0;
+		arrived_beacon_counter = 0;
 	}
 	
 	// Ajout de message de type "broadcast" dans la fil d'execution de emitter
@@ -106,10 +116,11 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 					ackHeard.remove(parent);
 					computation_index = m.getComputationIndex();
 				}
-				else {//si je suis l'initiateur d'élection
+				else {
 					computation_num++;
 					computation_id = m.getSource();
 					computation_index = new Pair<Integer, Long>(computation_num, computation_id);
+//					System.out.println(computation_index.getNum()+" "+computation_index.getId());
 				}
 				inElection = true;
 				if(neighbors.size() != 0) {
@@ -153,7 +164,6 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 			}
 		}
 		if (event instanceof AckMessage) { // A la réception de heartbeat
-			//EXO 2 Q1 hypothése 5 à réaliser pour test scope à réception
 			AckMessage m = (AckMessage) event;
 			if(m.getValue() > leaderValue) {
 				leaderValue = m.getValue();
@@ -172,16 +182,17 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 						LeaderMessage msg = new LeaderMessage(node.getID(), dest.getID(), my_pid, leaderId,leaderValue);
 						if(leaderValue == value) {
 							state = Etat.LEADER;
+							emitter.emit(node,new BeaconMessage(node.getID(),Emitter.ALL,my_pid, 1));
 						}else {
 							state = Etat.KNOWN;
 						}
+						arrived_beacon_counter = 0;
 						emitter.emit(node, msg);
-						//EDSimulator.add(latency,msg, dest, my_pid);
 					}
 				}else {
 					Node dest = Network.get((int)parent);
 					AckMessage msg = new AckMessage(node.getID(), parent, my_pid, leaderIdInformation,leaderValue);
-					EDSimulator.add( latency,msg, dest, my_pid);
+					EDSimulator.add(latency,msg, dest, my_pid);
 					ackParentDone = true;
 					//send msg ack to parent;
 				}
@@ -194,10 +205,16 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 			if(state == Etat.NOTKNOWN) {
 				leaderValue = m.getLeaderValue();
 				leaderId = m.getIdLeader();
+				arrived_beacon_counter = 0;
+
 				if(m.getLeaderValue() == value) {
 					state = Etat.LEADER;
+					System.out.println("envoie b");
+					emitter.emit(node,new BeaconMessage(node.getID(),Emitter.ALL,my_pid, 1));
 				}else {
 					state = Etat.KNOWN;
+					BeaconExpiredMessage bem = new BeaconExpiredMessage(node.getID(), node.getID(), my_pid, 1);
+					EDSimulator.add(beacon_interval, bem, node, my_pid);
 				}
 				for(long neighbor : this.getNeighbors()) {
 					Node dest = Network.get((int) neighbor);
@@ -207,10 +224,12 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 					EDSimulator.add(latency,m, dest, my_pid);
 				}
 			}else if (state != Etat.NOTKNOWN) {
-				if(leaderValue < m.getLeaderValue()) {
+				if(leaderValue < m.getLeaderValue()) {//known
 					leaderValue = m.getLeaderValue();
 					leaderId = m.getIdLeader();
 					state = Etat.KNOWN;
+//					arrived_beacon_counter = 0;
+
 					for(long neighbor : this.getNeighbors()) {
 						Node dest = Network.get((int) neighbor);
 						if(dest.equals(node)) {// éviter d'ajouter soimeme
@@ -219,7 +238,52 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 						LeaderMessage lmsg = new LeaderMessage(node.getID(), dest.getID(), my_pid, leaderId,leaderValue);
 						emitter.emit(node, lmsg);
 					}
+					BeaconExpiredMessage bem = new BeaconExpiredMessage(node.getID(), node.getID(), my_pid, arrived_beacon_counter);
+					EDSimulator.add(beacon_interval, bem, node, my_pid);
+				}else {//leader
+					emitter.emit(node,new BeaconMessage(node.getID(),Emitter.ALL,my_pid, arrived_beacon_counter+1));
 				}
+			}
+		}
+		if(event instanceof BeaconMessage) {
+			BeaconMessage m = (BeaconMessage) event;
+			if(state == Etat.LEADER) {
+				//
+				if(m.getTimeStamp() == arrived_beacon_counter+1) {
+					arrived_beacon_counter++;
+					BeaconMessage msg = new BeaconMessage(node.getID(),Emitter.ALL,my_pid,m.getTimeStamp()+1);
+					emitter.emit(node,msg);
+				}
+			}else {
+				//check awaitedcounter and received value
+				if(m.getTimeStamp() == arrived_beacon_counter+1) {
+					arrived_beacon_counter = m.getTimeStamp();
+					emitter.emit(node,m);
+				}
+				
+			}
+			
+		}
+		if(event instanceof BeaconExpiredMessage) {
+			System.out.println(node.getID() + " reception d'un beacon expired");
+
+			BeaconExpiredMessage m = (BeaconExpiredMessage) event;
+			if(m.getAwaitedCounter() > arrived_beacon_counter) {
+				//awaited beaconmessage not arrived
+				beacon_loss_count++;
+				EDSimulator.add(beacon_interval, m, node, my_pid);
+			}else {
+				//awaited beaconmessage arrived, reset loss count
+				beacon_loss_count = 0;
+				BeaconExpiredMessage bem = new BeaconExpiredMessage(node.getID(), node.getID(), my_pid, m.getAwaitedCounter()+1);
+				EDSimulator.add(beacon_interval, bem, node, my_pid);
+			}
+			if(beacon_loss_count == max_beacon_loss) {
+				//trigger election & get riede of ex leader
+				parent = -1;
+				state = Etat.NOTKNOWN;
+				ElectionMessage emsg = new ElectionMessage(node.getID(),node.getID(),my_pid, node.getID(), computation_index);
+				emitter.emit(node, emsg);
 			}
 		}
 		if (event instanceof ProbeMessage) {
@@ -262,10 +326,11 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 			if (ev.equals(init_value_event)) {
 				value = (int) node.getID();
 				leaderValue = value;
-				computation_id = node.getID();
-				int position_pid=Configuration.lookupPid("position");
-				PositionProtocolImpl p = (PositionProtocolImpl) Network.get((int) node.getID()).getProtocol(position_pid);
-				Position pos = p.getCurrentPosition();
+//				computation_id = node.getID();
+//				computation_index = new Pair<Integer, Long>(computation_num, computation_id);
+//				int position_pid=Configuration.lookupPid("position");
+//				PositionProtocolImpl p = (PositionProtocolImpl) Network.get((int) node.getID()).getProtocol(position_pid);
+//				Position pos = p.getCurrentPosition();
 //				for(int i = 0 ; i< Network.size();i++){
 //					Node dst = Network.get(i);
 //					if(dst.equals(Network.get(value))) {// éviter d'ajouter soi-meme
@@ -373,6 +438,9 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 			vkt.timeout_map = new HashMap<>();
 			vkt.computation_num = 0;
 			vkt.computation_id = -1L;
+			vkt.computation_index = new Pair<Integer, Long>(0, -1L);
+			vkt.beacon_loss_count = 0;
+			vkt.arrived_beacon_counter = 0;
 		}
 		catch( CloneNotSupportedException e ) {} // never happens
 		return vkt;
@@ -405,10 +473,13 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 	@Override
 	public List<String> infos(Node host) {
 		List<String> res = new ArrayList<String>();
-		res.add("Node" + host.getID());
-		res.add("Voisins " + neighbors);
-		res.add("Leader " + leaderId);
-		res.add("élection " + computation_index.getId());
+		res.add(""+host.getID());
+//		res.add("Voisins " + neighbors);
+//		res.add("Leader " + leaderId);
+//		res.add("index " + computation_index.getNum()+":"+computation_index.getId());
+//		res.add("num : "+computation_num);
+//		res.add("id : "+computation_id);
+		res.add("beacon counter : "+ arrived_beacon_counter);
 		return res;
 	}
 

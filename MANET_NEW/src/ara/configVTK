@@ -1,10 +1,10 @@
-network.size 20
+network.size 50
 random.seed 10
 simulation.endtime 50000
 
 protocol.position PositionProtocolImpl
-protocol.position.maxspeed 20
 protocol.position.minspeed 5
+protocol.position.maxspeed 20
 protocol.position.width 3000
 protocol.position.height 3000
 protocol.position.pause 20
@@ -19,6 +19,8 @@ protocol.vkt VKT04
 protocol.vkt.emit emit
 protocol.vkt.probe 300
 protocol.vkt.timer 400
+protocol.vkt.beaconinterval 20
+protocol.vkt.maxbeaconloss 6
 
 initial_position_strategy FullRandom
 initial_position_strategy.emitter emit
