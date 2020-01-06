@@ -497,11 +497,11 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 	/* permet d'obtenir l'état courant du noeud */
 	public int getState(Node host) {
 		if(state == Etat.NOTKNOWN) {
-			return 0;
+			return 2;
 		}else if (state == Etat.KNOWN) {
 			return 1;
 		}else { //être le leader
-			return 2;
+			return 0; //vert
 		}
 	}
 	
@@ -596,12 +596,19 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 	public List<String> infos(Node host) {
 		List<String> res = new ArrayList<String>();
 		res.add(""+host.getID());
-		res.add("Voisins " + neighbors);
-		res.add("Leader " + leaderId);
-		res.add("index " + computation_index.getNum()+":"+computation_index.getId());
-		res.add("num : "+computation_num);
+		res.add("V " + neighbors);
+		res.add("L " + leaderId);
+		res.add("i " + computation_index.getNum()+":"+computation_index.getId());
+		res.add("n : "+computation_num);
 		res.add("id : "+computation_id);
-		res.add("parent : "+parent);
+		res.add("P : "+parent);
+//		res.add(""+host.getID());
+//		res.add("Voisins " + neighbors);
+//		res.add("Leader " + leaderId);
+//		res.add("index " + computation_index.getNum()+":"+computation_index.getId());
+//		res.add("num : "+computation_num);
+//		res.add("id : "+computation_id);
+//		res.add("parent : "+parent);
 //		res.add("beacon counter : "+ arrived_beacon_counter);
 		return res;
 	}

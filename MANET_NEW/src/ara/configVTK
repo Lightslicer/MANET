@@ -19,7 +19,7 @@ protocol.vkt VKT04
 protocol.vkt.emit emit
 protocol.vkt.probe 300
 protocol.vkt.timer 400
-protocol.vkt.beaconinterval 20
+protocol.vkt.beaconinterval 100
 protocol.vkt.maxbeaconloss 6
 
 initial_position_strategy FullRandom
