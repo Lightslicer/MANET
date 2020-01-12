@@ -1,3 +1,18 @@
 lorsqu'un complex est stable
 Noeud 35 connait nv voisin N15 => nvl éléction alors qu'ils sont dans le même complex
 Correction : replyMessage contient leaderId, puis traitement si leaderId== alors NvVoisinAlerte traitement pas de lancement déléction
+
+
+time : 7000
+election 6 25 26 mais 26 quitte le grp, et 25 ne recoit pas de ack donc bloqué
+affichage timer de removeMessage et election message
+
+time:800
+leader 45 perdu, 8 12 35 14 15 entrent en éléction infini
+
+time: 2400
+Quand 2 noeuds s'envoient electionmessage, A et B, et A gagne , 
+il reçoit un ack et envoie un leader au B. Puis electionMessage 
+de B arrive, qui provoque une nouvelle éléction non désirée
+(j'ai considéré que des que A envoit leader, 
+il n'est plus en éléction donc il ne peut pas ignorer ce message)

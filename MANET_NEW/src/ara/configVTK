@@ -5,13 +5,13 @@ simulation.endtime 50000
 protocol.position PositionProtocolImpl
 protocol.position.minspeed 5
 protocol.position.maxspeed 20
-protocol.position.width 3000
-protocol.position.height 3000
+protocol.position.width 1200
+protocol.position.height 1200
 protocol.position.pause 20
 
 protocol.emit EmitterImpl
 protocol.emit.latency 90
-protocol.emit.scope 200
+protocol.emit.scope 100
 protocol.emit.variance FALSE
 protocol.emit.positionProtocol position
 
@@ -19,7 +19,7 @@ protocol.vkt VKT04
 protocol.vkt.emit emit
 protocol.vkt.probe 300
 protocol.vkt.timer 400
-protocol.vkt.beaconinterval 100
+protocol.vkt.beaconinterval 50
 protocol.vkt.maxbeaconloss 6
 
 initial_position_strategy FullRandom
