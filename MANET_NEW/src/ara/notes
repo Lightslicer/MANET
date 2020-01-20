@@ -16,3 +16,51 @@ il reçoit un ack et envoie un leader au B. Puis electionMessage
 de B arrive, qui provoque une nouvelle éléction non désirée
 (j'ai considéré que des que A envoit leader, 
 il n'est plus en éléction donc il ne peut pas ignorer ce message)
+
+time 7000
+noed 7 beacon expired immédiatement après merge avec 40 : 
+    il faut que 40 envoie à 7
+    ou laisser qu'i llance une election et se stabiliser
+
+time 7100
+node 40 quite le complex et beacon expired
+bug proveque : election de 40 eest ignore par 7 cause computation index
+bug provoque par solution bug time 2400
+solution : on herite de computation num participé
+
+time 7600
+node 14 leave complex, stays at unknown
+
+time 14000
+node 20 15 26 missed the leaderMessage? and stays at unknown.
+
+time 14300
+node 7 40 : ack de 40 traité avant elec de 40.
+
+time 21000
+node 9 33 35
+
+time 33500
+node 8 10 5 28
+wrong node leader : 8 instead of 28
+
+---------solved
+
+time 13874
+node 19 35 20 15 26
+node 35 and 20 got themself as parent, => 20 15 26 stay as unknown
+
+time 22466
+node 7 40
+upon separation, 7 stays as known : 1) beaconexpired not armed? 2) ??
+
+
+time 15500
+node   5 0 29
+complex stay as unknown
+
+
+
+
+
+
