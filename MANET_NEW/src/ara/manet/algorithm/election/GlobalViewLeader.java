@@ -39,7 +39,8 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 	private static final String PAR_SCOPE = "scope";
 	private static final String PAR_LATENCY = "latency";
 	public static final String init_value_event = "INITEVENT";
-	
+
+	private static final String PAR_EMITTER = "emit";
 	private static final String PAR_PROBE = "probe";
 	private static final String PAR_TIMER = "timer";
 	
@@ -53,6 +54,7 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 	private int probe;
 	private int timer;
 	private int leader;
+	private Emitter emitter;
 	
 	
 	public GlobalViewLeader(String prefix) {
@@ -62,6 +64,8 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 		pid = Configuration.lookupPid(tmp[tmp.length - 1]);
 		this.probe = Configuration.getInt(prefix + "." + PAR_PROBE);
 		this.timer = Configuration.getInt(prefix + "." + PAR_TIMER);
+		this.emitter = (Emitter) Configuration.getInstance("protocol." + PAR_EMITTER);
+
 		neighbors = new ArrayList<>();
 		value = pid;
 		peer = new Peer(pid, value);
@@ -84,6 +88,8 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 			knowledge[pid].clock = clock;
 			knowledge[pid].neighbors = neighbors;
 			//broadcast knowledge
+			emitter.emit(node, new knowledgeMessage(idsrc, iddest, pid, knowledge, srcClock));
+			
 		}
 		
 		//upon disconnected peer j
