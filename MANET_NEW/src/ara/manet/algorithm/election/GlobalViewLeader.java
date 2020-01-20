@@ -17,7 +17,7 @@ import peersim.core.Network;
 import peersim.core.Node;
 import peersim.edsim.EDSimulator;
 
-public class GlobalViewLeader{
+public class GlobalViewLeader implements ElectionProtocol, Monitorable, NeighborProtocol{
 	
 	public class Peer {
 		int id;

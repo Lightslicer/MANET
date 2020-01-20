@@ -13,6 +13,7 @@ protocol.emit EmitterImpl
 protocol.emit.latency 50
 protocol.emit.scope 200
 protocol.emit.variance FALSE
+protocol.emit.positionProtocol position
 
 protocol.gvl GlobalViewLeader
 protocol.gvl.probe 100

@@ -3,6 +3,7 @@ package ara.manet;
 import ara.manet.algorithm.election.GlobalViewLeader;
 import ara.manet.algorithm.election.VKT04Statique;
 import ara.manet.communication.EmitterImpl;
+import ara.manet.detection.HeartBeatMessage;
 import ara.manet.detection.NeighborProtocolImpl;
 import ara.manet.detection.NeighborhoodListenerImpl;
 import ara.manet.positioning.PositionProtocolImpl;
@@ -35,7 +36,8 @@ public  InitialisationGlobalViewLeader(String prefix) {}
 		for(int i = 0;i<Network.size();i++) {
 			Node src = Network.get(i);			
 			NeighborProtocolImpl np = (NeighborProtocolImpl) src.getProtocol(neighbor_pid);
-			np.heartbeat(src);
+			//np.heartbeat(src);
+			np.processEvent(src, neighbor_pid, new HeartBeatMessage(src.getID(),src.getID(),neighbor_pid));
 			PositionProtocolImpl pp = (PositionProtocolImpl) src.getProtocol(position_pid);
 			pp.processEvent(src, position_pid, "LOOPEVENT");
 			GlobalViewLeader gvl = (GlobalViewLeader) src.getProtocol(gvl_pid);
@@ -44,7 +46,7 @@ public  InitialisationGlobalViewLeader(String prefix) {}
 		}
 		Node src = Network.get(0);
 		EmitterImpl ep = (EmitterImpl) src.getProtocol((emitter_pid));
-		ep.attach(listener);
+		//ep.attach(listener);
 		return false;
 	}
 }
