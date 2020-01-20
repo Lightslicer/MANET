@@ -6,5 +6,6 @@
 	<classpathentry kind="lib" path="C:/Users/Seathkiller/Desktop/peersim-1.0.5/djep-1.0.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Seathkiller/Desktop/peersim-1.0.5/jep-2.3.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Seathkiller/Desktop/peersim-1.0.5/peersim-1.0.5.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Seathkiller/Desktop/peersim-1.0.5/peersim-doclet.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
