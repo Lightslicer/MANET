@@ -3,9 +3,9 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/PeerSim"/>
-	<classpathentry kind="lib" path="C:/Users/Seathkiller/Desktop/peersim-1.0.5/djep-1.0.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Seathkiller/Desktop/peersim-1.0.5/jep-2.3.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Seathkiller/Desktop/peersim-1.0.5/peersim-1.0.5.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Seathkiller/Desktop/peersim-1.0.5/peersim-doclet.jar"/>
+	<classpathentry kind="lib" path="/users/Etu8/3520328/peersim-1.0.5/djep-1.0.0.jar"/>
+	<classpathentry kind="lib" path="/users/Etu8/3520328/peersim-1.0.5/jep-2.3.0.jar"/>
+	<classpathentry kind="lib" path="/users/Etu8/3520328/peersim-1.0.5/peersim-1.0.5.jar"/>
+	<classpathentry kind="lib" path="/users/Etu8/3520328/peersim-1.0.5/peersim-doclet.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

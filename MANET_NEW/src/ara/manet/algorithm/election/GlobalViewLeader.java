@@ -13,6 +13,9 @@ import ara.manet.algorithm.election.VKT04Statique.Etat;
 import ara.manet.communication.Emitter;
 import ara.manet.detection.NeighborProtocol;
 import ara.manet.detection.NeighborhoodListener;
+import ara.manet.detection.ProbeMessage;
+import ara.manet.detection.RemoveMessage;
+import ara.manet.detection.ReplyMessage;
 import ara.manet.positioning.Position;
 import ara.manet.positioning.PositionProtocolImpl;
 import peersim.config.Configuration;
@@ -35,7 +38,7 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 		List<Peer> neighbors;
 		public View(int clock, List<Peer> neighbors) {
 			this.clock = clock;
-			this.neighbors = neighbors; // instancier direct ?
+			this.neighbors = neighbors; 
 		}
 	}
 	
@@ -50,18 +53,19 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 	private int pid;
 	private int value;
 	private int clock;
+	private View view;
 	private List<Peer> neighbors;
 	private Peer peer;
 	private View[] knowledge;
+	private int leader;
 	
 	private int probe;
 	private int timer;
-	private int leader;
 	private Emitter emitter;
 	
 	
 	public GlobalViewLeader(String prefix) {
-		View view = new View(clock, neighbors);
+		view = new View(clock, neighbors);
 		knowledge = new View[Network.size()];
 		String tmp[] = prefix.split("\\.");
 		pid = Configuration.lookupPid(tmp[tmp.length - 1]);
@@ -76,6 +80,7 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 		//initialisation
 		neighbors.add(peer);
 		clock = 0;
+		leader = -1;
 	}
 	
 
@@ -113,6 +118,26 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 			//broadcast edit
 			emitter.emit(node, edit);
 		}
+		
+		
+		
+		//probe
+		//reply
+		//remove
+		
+		if(event instanceof ProbeMessage) {
+			
+		}
+		
+		if(event instanceof ReplyMessage) {
+			
+		}
+		
+		if(event instanceof RemoveMessage) {
+			
+		}
+		
+		
 		
 		//upon reception of knowledge from peer j
 		if(event instanceof knowledgeMessage) {
@@ -188,34 +213,24 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 		}
 	}
 	
-	public void leader(Peer peer) {
+	public int leader() {
+		int max=-1;
 		List<Peer> voisins = new ArrayList<Peer>(knowledge[peer.id].neighbors);
 		for(Peer p : voisins) {
 			
 		}
+		return max;
 	}
 
 
-	/*
-	public List<Peer> getNeighbors() {
-		int position_pid=Configuration.lookupPid("position");
-		PositionProtocolImpl p = (PositionProtocolImpl) Network.get(value).getProtocol(position_pid);
-		Position pos = p.getCurrentPosition();
-		for(int i = 0 ; i< Network.size();i++){
-			Node dst = Network.get(i);
-			if(dst.equals(Network.get(value))) {// éviter d'ajouter soi-meme
-				continue;
-			}
-			PositionProtocolImpl pp = (PositionProtocolImpl) dst.getProtocol(position_pid);
-			if((pp.getCurrentPosition().distance(pos)) <= Configuration.getInt("protocol.vkt." + PAR_SCOPE)) {
-				int dstID = (int) dst.getID();
-				int dstVal = (int) dst.getID();
-				Peer dstPeer = new Peer(dstID, dstVal);
-				neighbors.add(dstPeer);
-			}
+	@Override
+	public List<Long> getNeighbors() {
+		List<Long> res = new ArrayList<>();
+		for(int i=0; i<neighbors.size(); i++) {
+			res.add((long) neighbors.get(i).id);
 		}
-		return neighbors;
-	}*/
+		return res;
+	}
 
 
 
@@ -249,12 +264,8 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 			gvl.clock = -1;
 			gvl.peer = new Peer(clock, clock);
 			gvl.knowledge = new View[clock];
-			//gvl.leaderId = -1;
-			//gvl.parent = -1;
-			//gvl.leaderValue = -1;
-			//gvl.childrenCount = 0;
-			//gvl.state = Etat.NOTKNOWN;
-			//gvl.ackHear = new HashSet<>();
+			gvl.view = new View(clock, neighbors);
+			gvl.leader = -1;
 		}
 		catch( CloneNotSupportedException e ) {} // never happens
 		return gvl;
@@ -300,11 +311,11 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 	}
 
 
-
+	/*
 	@Override
 	public List<Long> getNeighbors() {
 		// TODO Auto-generated method stub
 		return null;
-	}
+	}*/
 
 }
