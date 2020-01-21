@@ -59,6 +59,9 @@ time 15500
 node   5 0 29
 complex stay as unknown
 
+time 27000
+node 9 unknown
+
 
 
 

@@ -1,4 +1,4 @@
-network.size 50
+network.size 60
 random.seed 10
 simulation.endtime 50000
 
@@ -19,7 +19,7 @@ protocol.vkt VKT04
 protocol.vkt.emit emit
 protocol.vkt.probe 300
 protocol.vkt.timer 400
-protocol.vkt.beaconinterval 50
+protocol.vkt.beaconinterval 200
 protocol.vkt.maxbeaconloss 6
 
 initial_position_strategy FullRandom
@@ -37,9 +37,9 @@ control.monitor.positionprotocol position
 control.monitor.neighborprotocol vkt
 control.monitor.monitorableprotocol vkt
 control.monitor.emitter emit
-control.monitor.time_slow 200
+control.monitor.time_slow 400
 control.monitor.from 0
-control.monitor.until 50000
+control.monitor.until 80000
 control.monitor.step 1
 
 
