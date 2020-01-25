@@ -43,6 +43,7 @@ public class ConnexiteMonitor implements Control {
 	private BufferedWriter writer2;
 	private BufferedWriter writer3;
 
+	private double err_elections;
 	private long END;
 
 	private static final Monitorable defaultmonitorable = new Monitorable() {
@@ -70,6 +71,7 @@ public class ConnexiteMonitor implements Control {
 		average_connexity = 0;
 		variance_connexity = 0;
 		percentage = 0;
+		err_elections = 0;
 		try {
 			writer1 = new BufferedWriter(new FileWriter("average_connexity_vkt.txt", true));
 			writer2 = new BufferedWriter(new FileWriter("variance_connexity_vkt.txt", true));
@@ -81,10 +83,7 @@ public class ConnexiteMonitor implements Control {
 
 	private void Connexity(){
 
-		long good_elections = 0;
-		long err_elections = 0;
-		long size = 0;
-		
+
 		Map<Long, Position> positions = PositionProtocol.getPositions(position_pid);
 
 		//System.err.println(positions);
@@ -98,7 +97,7 @@ public class ConnexiteMonitor implements Control {
 		average_connexity = stats.getAverage();
 		variance_connexity = stats.getVar();
 
-		
+
 		// calcule du pourcentage de bon leader.
 		for (Map.Entry<Integer, Set<Node> > entry : connected_components.entrySet()) {
 
@@ -111,18 +110,14 @@ public class ConnexiteMonitor implements Control {
 			for (Node n : entry.getValue()) {
 				ElectionProtocol ep = (ElectionProtocol) n.getProtocol(monitorable_pid);
 				// Ajout de la condition pour les algos de marya.
-				if (ep.getIDLeader() == max 
-						//|| (ep.getIDLeader() == -1 
-						//&& connected_components.size() == 1)
-						//|| entry.getValue().size() == 1
-						|| ep.getIDLeader() == n.getID()) {
-					good_elections++;
+				if (ep.getIDLeader() == max || ep.getIDLeader() == n.getID()) {
+					//good_elections++;
 				}else {
 					err_elections++;
 				}
 			}
-			percentage = (float) err_elections / Network.size();
 		}
+
 
 	}
 
@@ -132,21 +127,23 @@ public class ConnexiteMonitor implements Control {
 
 		Emitter em = (Emitter) Network.get(0).getProtocol(emitter_pid);
 		Connexity();
-		
-			try {
-				if(CommonState.getTime() == END-1000) {
+
+		try {
+			if(CommonState.getTime() == END-1000) {
 				writer1.append(em.getScope()+" "+String.valueOf(average_connexity)+"\n");
 				writer2.append(em.getScope()+" "+String.valueOf(variance_connexity)+"\n");
 				writer1.flush();
 				writer2.flush();
-				}
-				writer3.append(String.valueOf(percentage)+"\n");
-				System.err.println(percentage);
-				writer3.flush();
-			} catch (IOException e1) {
-				e1.printStackTrace();
 			}
-				return false;
+			if(CommonState.getTime() == END-1) {
+				writer3.append(String.valueOf(err_elections/(Network.size()*END))+"\n");
+				System.err.println(err_elections);
+				writer3.flush();
+			}
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		return false;
 
 	}
 

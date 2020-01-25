@@ -1,6 +1,6 @@
 network.size 60
 random.seed 10
-simulation.endtime 80000
+simulation.endtime 100000
 
 protocol.position PositionProtocolImpl
 protocol.position.minspeed 5
@@ -11,7 +11,7 @@ protocol.position.pause 20
 
 protocol.emit EmitterImpl
 protocol.emit.latency 90
-protocol.emit.scope 150
+protocol.emit.scope 200
 protocol.emit.variance FALSE
 protocol.emit.positionProtocol position
 
@@ -19,7 +19,7 @@ protocol.vkt VKT04
 protocol.vkt.emit emit
 protocol.vkt.probe 300
 protocol.vkt.timer 400
-protocol.vkt.beaconinterval 200
+protocol.vkt.beaconinterval 300
 protocol.vkt.maxbeaconloss 6
 
 initial_position_strategy FullRandom
@@ -38,9 +38,9 @@ control.monitor.positionprotocol position
 control.monitor.neighborprotocol vkt
 control.monitor.monitorableprotocol vkt
 control.monitor.emitter emit
-control.monitor.time_slow 400
+control.monitor.time_slow 0.000000001
 control.monitor.from 0
-control.monitor.until 80000
+control.monitor.until 100000
 control.monitor.step 1
 
 control.connexite ConnexiteMonitor
@@ -50,8 +50,8 @@ control.connexite.neighborprotocol vkt
 control.connexite.monitorableprotocol vkt
 control.connexite.timer 10
 control.connexite.from 0
-control.connexite.until 80000
-control.connexite.step 1000
+control.connexite.until 100000
+control.connexite.step 1
 
 init.i InitialisationVTK
 
