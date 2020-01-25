@@ -1,4 +1,4 @@
-package ara.manet;
+package src.ara.manet;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ara.manet.positioning.Position;
 import peersim.graph.Graph;
+import src.ara.manet.positioning.Position;
 
 /**
  * @author jonathan.lejeune@lip6.fr

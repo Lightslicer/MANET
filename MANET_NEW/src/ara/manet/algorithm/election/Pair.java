@@ -1,4 +1,4 @@
-package ara.manet.algorithm.election;
+package src.ara.manet.algorithm.election;
 
 public class Pair<K, V> {
 	private Integer num;

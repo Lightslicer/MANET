@@ -1,4 +1,4 @@
-package ara.manet;
+package src.ara.manet;
 
 import java.util.ArrayList;
 import java.util.List;

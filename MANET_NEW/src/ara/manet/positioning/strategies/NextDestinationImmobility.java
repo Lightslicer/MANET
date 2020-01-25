@@ -1,10 +1,10 @@
-package ara.manet.positioning.strategies;
+package src.ara.manet.positioning.strategies;
 
-import ara.manet.positioning.NextDestinationStrategy;
-import ara.manet.positioning.Position;
-import ara.manet.positioning.PositionProtocol;
 import peersim.config.Configuration;
 import peersim.core.Node;
+import src.ara.manet.positioning.NextDestinationStrategy;
+import src.ara.manet.positioning.Position;
+import src.ara.manet.positioning.PositionProtocol;
 
 /**
  * @author jonathan.lejeune@lip6.fr

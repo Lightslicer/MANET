@@ -1,4 +1,4 @@
-package ara.manet;
+package src.ara.manet;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -12,14 +12,14 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import ara.manet.communication.Emitter;
-import ara.manet.detection.NeighborProtocol;
-import ara.manet.positioning.PositionProtocol;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
+import src.ara.manet.communication.Emitter;
+import src.ara.manet.detection.NeighborProtocol;
+import src.ara.manet.positioning.PositionProtocol;
 
 /**
  * @author jonathan.lejeune@lip6.fr

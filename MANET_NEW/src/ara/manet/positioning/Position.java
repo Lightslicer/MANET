@@ -1,4 +1,4 @@
-package ara.manet.positioning;
+package src.ara.manet.positioning;
 
 /**
  * @author jonathan.lejeune@lip6.fr

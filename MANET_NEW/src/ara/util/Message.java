@@ -1,4 +1,4 @@
-package ara.util;
+package src.ara.util;
 
 /**
  * @author jonathan.lejeune@lip6.fr

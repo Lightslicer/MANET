@@ -1,9 +1,7 @@
-package ara.manet.algorithm.election;
+package src.ara.manet.algorithm.election;
 
-import java.util.List;
-
-import ara.manet.algorithm.election.GlobalViewLeader.View;
-import ara.util.Message;
+import src.ara.manet.algorithm.election.GlobalViewLeader.View;
+import src.ara.util.Message;
 
 public class knowledgeMessage extends Message{
 	View[] knowledge;

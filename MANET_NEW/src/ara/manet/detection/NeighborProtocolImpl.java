@@ -1,18 +1,18 @@
-package ara.manet.detection;
+package src.ara.manet.detection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ara.manet.communication.Emitter;
-import ara.manet.communication.EmitterImpl;
-import ara.util.Message;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Node;
 import peersim.edsim.EDProtocol;
 import peersim.edsim.EDSimulator;
+import src.ara.manet.communication.Emitter;
+import src.ara.manet.communication.EmitterImpl;
+import src.ara.util.Message;
 
 public class NeighborProtocolImpl implements NeighborProtocol, EDProtocol {
 	private static final String PERIODE = "probe";

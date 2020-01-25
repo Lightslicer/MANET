@@ -1,17 +1,13 @@
-package ara.manet.communication;
+package src.ara.manet.communication;
 
-import java.util.List;
-
-import ara.manet.algorithm.election.BeaconMessage;
-import ara.manet.detection.NeighborhoodListener;
-import ara.manet.positioning.Position;
-import ara.manet.positioning.PositionProtocolImpl;
-import ara.util.Message;
 import peersim.config.Configuration;
 import peersim.core.Network;
 import peersim.core.Node;
 import peersim.edsim.EDProtocol;
 import peersim.edsim.EDSimulator;
+import src.ara.manet.positioning.Position;
+import src.ara.manet.positioning.PositionProtocolImpl;
+import src.ara.util.Message;
 
 public class EmitterImpl implements Emitter {
 
@@ -103,6 +99,12 @@ public class EmitterImpl implements Emitter {
 		} catch (CloneNotSupportedException e) {
 		}
 		return res;
+	}
+
+	@Override
+	public int getPositionProtocolPid() {
+		// TODO Auto-generated method stub
+		return position_pid;
 	}
 
 	

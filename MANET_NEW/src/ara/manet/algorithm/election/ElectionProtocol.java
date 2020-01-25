@@ -1,4 +1,4 @@
-package ara.manet.algorithm.election;
+package src.ara.manet.algorithm.election;
 
 import peersim.edsim.EDProtocol;
 

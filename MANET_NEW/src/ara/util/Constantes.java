@@ -1,4 +1,4 @@
-package ara.util;
+package src.ara.util;
 
 import java.util.Date;
 import java.util.logging.ConsoleHandler;

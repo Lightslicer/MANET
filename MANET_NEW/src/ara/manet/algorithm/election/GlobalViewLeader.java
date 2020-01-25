@@ -1,30 +1,21 @@
-																																		package ara.manet.algorithm.election;
+package src.ara.manet.algorithm.election;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
-import ara.manet.Monitorable;
-import ara.manet.algorithm.election.GlobalViewLeader.Peer;
-import ara.manet.algorithm.election.GlobalViewLeader.View;
-import ara.manet.algorithm.election.VKT04Statique.Etat;
-import ara.manet.communication.Emitter;
-import ara.manet.detection.NeighborProtocol;
-import ara.manet.detection.NeighborhoodListener;
-import ara.manet.detection.ProbeMessage;
-import ara.manet.detection.RemoveMessage;
-import ara.manet.detection.ReplyMessage;
-import ara.manet.positioning.Position;
-import ara.manet.positioning.PositionProtocolImpl;
 import peersim.config.Configuration;
 import peersim.core.Network;
 import peersim.core.Node;
-import peersim.edsim.EDSimulator;
+import src.ara.manet.Monitorable;
+import src.ara.manet.communication.Emitter;
+import src.ara.manet.detection.NeighborProtocol;
+import src.ara.manet.detection.NeighborhoodListener;
+import src.ara.manet.detection.ProbeMessage;
+import src.ara.manet.detection.RemoveMessage;
+import src.ara.manet.detection.ReplyMessage;
 
 public class GlobalViewLeader implements ElectionProtocol, Monitorable, NeighborProtocol{
-	
+
 	public class Peer {
 		int id;
 		int value;
@@ -41,7 +32,7 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 			this.neighbors = neighbors; 
 		}
 	}
-	
+
 	private static final String PAR_SCOPE = "scope";
 	private static final String PAR_LATENCY = "latency";
 	public static final String init_value_event = "INITEVENT";
@@ -49,7 +40,7 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 	private static final String PAR_EMITTER = "emit";
 	private static final String PAR_PROBE = "probe";
 	private static final String PAR_TIMER = "timer";
-	
+
 	private int pid;
 	private int value;
 	private int clock;
@@ -58,12 +49,12 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 	private Peer peer;
 	private View[] knowledge;
 	private int leader;
-	
+
 	private int probe;
 	private int timer;
 	private Emitter emitter;
-	
-	
+
+
 	public GlobalViewLeader(String prefix) {
 		view = new View(clock, neighbors);
 		knowledge = new View[Network.size()];
@@ -76,17 +67,17 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 		neighbors = new ArrayList<>();
 		value = pid;
 		peer = new Peer(pid, value);
-		
+
 		//initialisation
 		neighbors.add(peer);
 		clock = 0;
 		leader = -1;
 	}
-	
 
-	
+
+
 	public void processEvent(Node node, int pid, Object event) {
-		
+
 		//upon connected peer j
 		if(event instanceof connectedMessage) {
 			connectedMessage m = (connectedMessage) event;
@@ -97,9 +88,9 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 			knowledge[pid].neighbors = neighbors;
 			//broadcast knowledge
 			emitter.emit(node, new knowledgeMessage(pid, Emitter.ALL, pid, knowledge, clock));
-			
+
 		}
-		
+
 		//upon disconnected peer j
 		if(event instanceof disconnectedMessage) {
 			disconnectedMessage m = (disconnectedMessage) event;
@@ -118,27 +109,27 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 			//broadcast edit
 			emitter.emit(node, edit);
 		}
-		
-		
-		
+
+
+
 		//probe
 		//reply
 		//remove
-		
+
 		if(event instanceof ProbeMessage) {
-			
+
 		}
-		
+
 		if(event instanceof ReplyMessage) {
-			
+
 		}
-		
+
 		if(event instanceof RemoveMessage) {
-			
+
 		}
-		
-		
-		
+
+
+
 		//upon reception of knowledge from peer j
 		if(event instanceof knowledgeMessage) {
 			knowledgeMessage m = (knowledgeMessage) event;
@@ -160,7 +151,7 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 						knowledge[p.id].neighbors = m.knowledge[p.id].neighbors;
 						knowledge[p.id].clock = m.knowledge[p.id].clock;
 					}
-					
+
 				}
 			}
 			if(edit != null) {
@@ -168,7 +159,7 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 				emitter.emit(node, edit);
 			}
 		}
-		
+
 		if(event instanceof editMessage) {
 			editMessage m = (editMessage) event;
 			int update = 0;
@@ -212,12 +203,12 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 			}
 		}
 	}
-	
+
 	public int leader() {
 		int max=-1;
 		List<Peer> voisins = new ArrayList<Peer>(knowledge[peer.id].neighbors);
 		for(Peer p : voisins) {
-			
+
 		}
 		return max;
 	}
@@ -235,7 +226,7 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 
 
 
-	
+
 	public long getIDLeader() {
 		return pid;
 	}
@@ -246,13 +237,13 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 
 
 
-	
+
 	public int getValue() {
 		return value;
 	}
 
 
-	
+
 	@Override
 	public GlobalViewLeader clone() {
 		GlobalViewLeader gvl = null;
@@ -276,14 +267,14 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 	private List<Peer> neighbors;
 	private Peer peer;
 	private View[] knowledge;
-	
+
 	private int probe;
 	private int timer;
 	private int leader;*/
 	@Override
 	public void attach(NeighborhoodListener nl) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
@@ -291,7 +282,7 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 	@Override
 	public void detach(NeighborhoodListener nl) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
@@ -299,7 +290,7 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 	@Override
 	public void notifyAddListener(Node node, Long newId) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
@@ -307,7 +298,7 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 	@Override
 	public void notifyRemoveListener(Node node, Long newId) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 

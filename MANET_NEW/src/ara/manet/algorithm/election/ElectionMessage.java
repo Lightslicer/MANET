@@ -1,6 +1,6 @@
-package ara.manet.algorithm.election;
+package src.ara.manet.algorithm.election;
 
-import ara.util.Message;
+import src.ara.util.Message;
 
 public class ElectionMessage extends Message {
 	

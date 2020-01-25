@@ -1,19 +1,19 @@
-package ara.manet.algorithm.election;
+package src.ara.manet.algorithm.election;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ara.manet.Monitorable;
-import ara.manet.detection.NeighborProtocol;
-import ara.manet.detection.NeighborhoodListener;
-import ara.manet.positioning.Position;
-import ara.manet.positioning.PositionProtocolImpl;
 import peersim.config.Configuration;
 import peersim.core.Network;
 import peersim.core.Node;
 import peersim.edsim.EDSimulator;
+import src.ara.manet.Monitorable;
+import src.ara.manet.detection.NeighborProtocol;
+import src.ara.manet.detection.NeighborhoodListener;
+import src.ara.manet.positioning.Position;
+import src.ara.manet.positioning.PositionProtocolImpl;
 
 
 public class VKT04Statique implements ElectionProtocol, Monitorable, NeighborProtocol{

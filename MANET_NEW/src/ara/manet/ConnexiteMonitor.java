@@ -1,23 +1,21 @@
-package ara.manet;
+package src.ara.manet;
 
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Set;
 
-import ara.manet.communication.Emitter;
-import ara.manet.positioning.Position;
-import ara.manet.positioning.PositionProtocol;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
 import peersim.util.IncrementalStats;
+import src.ara.manet.algorithm.election.ElectionProtocol;
+import src.ara.manet.communication.Emitter;
+import src.ara.manet.positioning.Position;
+import src.ara.manet.positioning.PositionProtocol;
 
 public class ConnexiteMonitor implements Control {
 
@@ -40,10 +38,11 @@ public class ConnexiteMonitor implements Control {
 	private int connexity;
 	private double average_connexity;
 	private double variance_connexity;
-
+	private float percentage;
 	private BufferedWriter writer1;
 	private BufferedWriter writer2;
-	
+	private BufferedWriter writer3;
+
 	private long END;
 
 	private static final Monitorable defaultmonitorable = new Monitorable() {
@@ -67,10 +66,14 @@ public class ConnexiteMonitor implements Control {
 		timer=Configuration.getDouble(prefix+"."+PAR_TIMER);
 		stats = new IncrementalStats();
 		END = CommonState.getEndTime();
+		connexity = 0;
+		average_connexity = 0;
+		variance_connexity = 0;
+		percentage = 0;
 		try {
 			writer1 = new BufferedWriter(new FileWriter("average_connexity_vkt.txt", true));
 			writer2 = new BufferedWriter(new FileWriter("variance_connexity_vkt.txt", true));
-
+			writer3 = new BufferedWriter(new FileWriter("tauxinst.txt", true));
 		}catch(IOException e) {
 
 		}
@@ -78,7 +81,10 @@ public class ConnexiteMonitor implements Control {
 
 	private void Connexity(){
 
-
+		long good_elections = 0;
+		long err_elections = 0;
+		long size = 0;
+		
 		Map<Long, Position> positions = PositionProtocol.getPositions(position_pid);
 
 		//System.err.println(positions);
@@ -86,10 +92,37 @@ public class ConnexiteMonitor implements Control {
 		Emitter em = (Emitter) Network.get(0).getProtocol(emitter_pid);
 		// recuperation de toutes les composantes connexes.
 		Map<Integer, Set<Node>> connected_components = PositionProtocol.getConnectedComponents(positions, em.getScope());
+
 		connexity = connected_components.size();
 		stats.add(connexity);
 		average_connexity = stats.getAverage();
 		variance_connexity = stats.getVar();
+
+		
+		// calcule du pourcentage de bon leader.
+		for (Map.Entry<Integer, Set<Node> > entry : connected_components.entrySet()) {
+
+			long max = -1;
+
+			for (Node n : entry.getValue()) {
+				// On joue sur le fait que les id sont la valeur de desirability
+				max = Math.max(max, n.getID());
+			}
+			for (Node n : entry.getValue()) {
+				ElectionProtocol ep = (ElectionProtocol) n.getProtocol(monitorable_pid);
+				// Ajout de la condition pour les algos de marya.
+				if (ep.getIDLeader() == max 
+						//|| (ep.getIDLeader() == -1 
+						//&& connected_components.size() == 1)
+						//|| entry.getValue().size() == 1
+						|| ep.getIDLeader() == n.getID()) {
+					good_elections++;
+				}else {
+					err_elections++;
+				}
+			}
+			percentage = (float) err_elections / Network.size();
+		}
 
 	}
 
@@ -99,17 +132,21 @@ public class ConnexiteMonitor implements Control {
 
 		Emitter em = (Emitter) Network.get(0).getProtocol(emitter_pid);
 		Connexity();
-		if(CommonState.getTime() == END-1000) {
+		
 			try {
+				if(CommonState.getTime() == END-1000) {
 				writer1.append(em.getScope()+" "+String.valueOf(average_connexity)+"\n");
 				writer2.append(em.getScope()+" "+String.valueOf(variance_connexity)+"\n");
-							writer1.flush();
-							writer2.flush();
+				writer1.flush();
+				writer2.flush();
+				}
+				writer3.append(String.valueOf(percentage)+"\n");
+				System.err.println(percentage);
+				writer3.flush();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-		}
-		return false;
+				return false;
 
 	}
 

@@ -1,4 +1,4 @@
-package ara.manet.detection;
+package src.ara.manet.detection;
 
 import peersim.core.Node;
 import peersim.core.Protocol;

@@ -1,12 +1,12 @@
-package ara.manet.positioning.strategies;
+package src.ara.manet.positioning.strategies;
 
-import ara.manet.communication.Emitter;
-import ara.manet.positioning.InitialPositionStrategy;
-import ara.manet.positioning.Position;
-import ara.manet.positioning.PositionProtocol;
 import peersim.config.Configuration;
 import peersim.core.Network;
 import peersim.core.Node;
+import src.ara.manet.communication.Emitter;
+import src.ara.manet.positioning.InitialPositionStrategy;
+import src.ara.manet.positioning.Position;
+import src.ara.manet.positioning.PositionProtocol;
 
 /**
  * @author jonathan.lejeune@lip6.fr

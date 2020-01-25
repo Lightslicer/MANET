@@ -1,15 +1,15 @@
-package ara.manet.positioning.strategies;
+package src.ara.manet.positioning.strategies;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import ara.manet.positioning.NextDestinationStrategy;
-import ara.manet.positioning.Position;
-import ara.manet.positioning.PositioningConfiguration;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Network;
 import peersim.core.Node;
+import src.ara.manet.positioning.NextDestinationStrategy;
+import src.ara.manet.positioning.Position;
+import src.ara.manet.positioning.PositioningConfiguration;
 
 /**
  * @author jonathan.lejeune@lip6.fr

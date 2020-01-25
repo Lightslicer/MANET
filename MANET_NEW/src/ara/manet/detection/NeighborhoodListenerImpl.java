@@ -1,8 +1,5 @@
-package ara.manet.detection;
+package src.ara.manet.detection;
 
-import java.util.HashMap;
-
-import ara.manet.communication.EmitterImpl;
 import peersim.core.Node;
 
 public class NeighborhoodListenerImpl implements NeighborhoodListener {

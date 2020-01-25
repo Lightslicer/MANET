@@ -1,4 +1,4 @@
-package ara.manet.positioning;
+package src.ara.manet.positioning;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -6,12 +6,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import ara.manet.MANETGraph;
 import peersim.core.Network;
 import peersim.core.Node;
 import peersim.core.Protocol;
 import peersim.graph.Graph;
 import peersim.graph.GraphAlgorithms;
+import src.ara.manet.MANETGraph;
 
 /**
  * @author jonathan.lejeune@lip6.fr

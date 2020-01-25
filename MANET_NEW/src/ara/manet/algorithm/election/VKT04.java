@@ -1,4 +1,4 @@
-package ara.manet.algorithm.election;
+package src.ara.manet.algorithm.election;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,21 +7,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ara.manet.Monitorable;
-import ara.manet.communication.Emitter;
-import ara.manet.communication.EmitterImpl;
-import ara.manet.detection.HeartBeatMessage;
-import ara.manet.detection.NeighborProtocol;
-import ara.manet.detection.NeighborhoodListener;
-import ara.manet.detection.ProbeMessage;
-import ara.manet.detection.RemoveMessage;
-import ara.manet.detection.ReplyMessage;
-import ara.util.Message;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Network;
 import peersim.core.Node;
 import peersim.edsim.EDSimulator;
+import src.ara.manet.Monitorable;
+import src.ara.manet.communication.Emitter;
+import src.ara.manet.communication.EmitterImpl;
+import src.ara.manet.communication.WrapperEmitterImpl;
+import src.ara.manet.detection.HeartBeatMessage;
+import src.ara.manet.detection.NeighborProtocol;
+import src.ara.manet.detection.NeighborhoodListener;
+import src.ara.manet.detection.ProbeMessage;
+import src.ara.manet.detection.RemoveMessage;
+import src.ara.manet.detection.ReplyMessage;
+import src.ara.util.Message;
 
 
 public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, NeighborhoodListener{
@@ -67,6 +68,7 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 	private int beacon_loss_count;
 	private int arrived_beacon_counter;
 	private long oldLostLeaderId;
+	private final Emitter protoemitter;
 
 	public VKT04(String prefix) {
 		String tmp[] = prefix.split("\\.");
@@ -78,7 +80,8 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 		this.timer = Configuration.getInt(prefix + "." + PAR_TIMER);
 		this.beacon_interval = Configuration.getInt(prefix + "." + PAR_BEACON_INTERVAL);
 		this.max_beacon_loss = Configuration.getInt(prefix + "." + PAR_MAX_BEACON_LOSS);
-		this.emitter = (Emitter) Configuration.getInstance("protocol." + PAR_EMITTER);
+		this.protoemitter = (Emitter) Configuration.getInstance("protocol." + PAR_EMITTER);
+		this.emitter = new WrapperEmitterImpl(protoemitter);
 		this.neighbors = new ArrayList<Long>();
 		this.leaderId = -1;
 		this.parent = -1;
@@ -96,10 +99,10 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 	}
 
 	// Ajout de message de type "broadcast" dans la fil d'execution de emitter
-	public void emit(Node n, int pid, Message event) {
-		EmitterImpl e = ((EmitterImpl) n.getProtocol(emitter_pid));
-		e.emit(n, event);
-	}
+//	public void emit(Node n, int pid, Message event) {
+//		EmitterImpl e = ((EmitterImpl) n.getProtocol(emitter_pid));
+//		e.emit(n, event);
+//	}
 
 	@Override
 	public void processEvent(Node node, int pid, Object event) {
@@ -111,9 +114,9 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 			ElectionMessage m = (ElectionMessage) event;
 			ElectionMessage msg ;
 			if(inElection == false & leaderId == -1) { //parent not defined : either source or first time receiving electionmessage from parent
-				if(node.getID() == 17){
-					System.out.println(node.getID()+" elec 1 sender : "+ m.getIdSrc()+" source "+m.getSource()+" time "+CommonState.getIntTime());
-				}
+//				if(node.getID() == 17){
+//					System.out.println(node.getID()+" elec 1 sender : "+ m.getIdSrc()+" source "+m.getSource()+" time "+CommonState.getIntTime());
+//				}
 				if(m.getSource() != node.getID()) {// si Noeud node n'est pas la source d'éléction
 					parent = m.getIdSrc();
 					ackHeard.remove(parent);
@@ -132,33 +135,33 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 				inElection = true;
 				ackParentDone = false;
 				if(neighbors.size() == 1 & parent != -1){ // un seul voisin et c le parent donc pas de elec mais ack vers parent
-					if(node.getID() == 17){
-						System.out.println(node.getID()+" elec 1 ack to unique neighbor "+m.getSource()+" time "+CommonState.getIntTime());
-					}
+//					if(node.getID() == 17){
+//						System.out.println(node.getID()+" elec 1 ack to unique neighbor "+m.getSource()+" time "+CommonState.getIntTime());
+//					}
 					Node dest = Network.get((int) parent);
 					AckMessage amsg = new AckMessage(node.getID(), dest.getID(), my_pid, node.getID(), value,computation_index);//feuille donc il renvoie ses propres valeurs
 					emitter.emit(node, amsg);
 				}else if (neighbors.size() == 1 & parent == -1) {
-					if(node.getID() == 17){
-						System.out.println(node.getID()+" elec 1 init éléct im the parent"+m.getSource()+" time "+CommonState.getIntTime());
-					}
+//					if(node.getID() == 17){
+//						System.out.println(node.getID()+" elec 1 init éléct im the parent"+m.getSource()+" time "+CommonState.getIntTime());
+//					}
 					for(long neighbor : this.getNeighbors()) {
 						Node dest = Network.get((int) neighbor);
 						if(dest.getID() == parent) { //this neighbor is parent dont propagete ElectionMessage
 							continue; 
 						}
-						if(node.getID() == 17){
-							System.out.println(node.getID()+" elec 1 send to "+dest.getID()+" time "+CommonState.getIntTime());
-						}
+//						if(node.getID() == 17){
+//							System.out.println(node.getID()+" elec 1 send to "+dest.getID()+" time "+CommonState.getIntTime());
+//						}
 						msg = new ElectionMessage(node.getID(), dest.getID(), my_pid,m.getSource(),computation_index);
 						emitter.emit(node, msg);
 						//						EDSimulator.add(latency,msg, dest, my_pid);
 					}
 				}
 				else if(neighbors.size() > 1) {
-					if(node.getID() == 17){
-						System.out.println(node.getID()+" elec 1 got neighbor"+m.getSource()+" time "+CommonState.getIntTime());
-					}
+//					if(node.getID() == 17){
+//						System.out.println(node.getID()+" elec 1 got neighbor"+m.getSource()+" time "+CommonState.getIntTime());
+//					}
 					for(long neighbor : this.getNeighbors()) {
 						Node dest = Network.get((int) neighbor);
 						if(dest.getID() == parent) { //this neighbor is parent dont propagete ElectionMessage
@@ -169,9 +172,9 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 						//						EDSimulator.add(latency,msg, dest, my_pid);
 					}
 				}else {//neighbor size 0
-					if(node.getID() == 17){
-						System.out.println(node.getID()+" elec 1 no neighbor self elected leader "+m.getSource()+" time "+CommonState.getIntTime());
-					}
+//					if(node.getID() == 17){
+//						System.out.println(node.getID()+" elec 1 no neighbor self elected leader "+m.getSource()+" time "+CommonState.getIntTime());
+//					}
 					inElection=false;
 					state = Etat.LEADER;
 					leaderId = value;
@@ -181,9 +184,9 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 			}else if(inElection == true & leaderId == -1){//conflict need to test computation-index
 				Node dest = Network.get((int) m.getIdSrc());
 				VKT04 vktp = (VKT04) dest.getProtocol(my_pid);
-				if(node.getID() == 17){
-					System.out.println(node.getID()+" elec 2 sender: " + m.getIdSrc()+" source : "+m.getSource()+" time "+CommonState.getIntTime());
-				}
+//				if(node.getID() == 17){
+//					System.out.println(node.getID()+" elec 2 sender: " + m.getIdSrc()+" source : "+m.getSource()+" time "+CommonState.getIntTime());
+//				}
 				//				if(m.getSource() == node.getID()) {
 				//					//here case if elec trigger of node himself
 				//					//arrived after another elec from other nodes
@@ -194,9 +197,9 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 
 				if( (m.getComputationNum() > computation_index.getNum()) || (m.getComputationNum()==computation_index.getNum() && m.getComputationId() > computation_index.getId()) ) {
 					//System.out.println("noeaud "+node.getID()+" a recu un computation index sup de "+m.getIdSrc()+" "+computation_num+" "+m.getComputationNum()+" "+m.getComputationId()+" "+computation_id);
-					if(node.getID() == 17){
-						System.out.println(node.getID()+" source " + m.getIdSrc()+ " posséde un computation supérieur");
-					}
+//					if(node.getID() == 17){
+//						System.out.println(node.getID()+" source " + m.getIdSrc()+ " posséde un computation supérieur");
+//					}
 					// 35 send elec to himself after 20, so this execution and name
 					//himself parent
 					if(m.getSource() != node.getID()) {
@@ -210,9 +213,9 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 					ackHeard.remove(parent);
 					if(neighbors.size() == 1 & parent != -1){ // un seul voisin et c le parent donc pas de elec mais ack vers parent
 						dest = Network.get((int) parent);
-						if(node.getID() == 17){
-							System.out.println(node.getID()+" send ack to " + dest.getID());
-						}
+//						if(node.getID() == 17){
+//							System.out.println(node.getID()+" send ack to " + dest.getID());
+//						}
 						AckMessage amsg = new AckMessage(node.getID(), dest.getID(), my_pid, node.getID(), value,computation_index);//feuille donc il renvoie ses propres valeurs
 						ackParentDone = true;
 						//emitter.emit(node, amsg);
@@ -224,9 +227,9 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 							if(dest.getID() == parent) { //this neighbor is parent dont propagete ElectionMessage
 								continue; 
 							}
-							if(node.getID() == 17){
-								System.out.println(node.getID()+" elec source " + m.getIdSrc()+ " posséde un computation supérieur");
-							}
+//							if(node.getID() == 17){
+//								System.out.println(node.getID()+" elec source " + m.getIdSrc()+ " posséde un computation supérieur");
+//							}
 							msg = new ElectionMessage(node.getID(), dest.getID(), my_pid,m.getSource(),computation_index);
 							emitter.emit(node, msg);
 						}
@@ -238,18 +241,18 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 							if(dest.getID() == parent) { //this neighbor is parent dont propagete ElectionMessage
 								continue; 
 							}
-							if(node.getID() == 17){
-								System.out.println(node.getID()+" send elec to " + dest.getID());
-							}
+//							if(node.getID() == 17){
+//								System.out.println(node.getID()+" send elec to " + dest.getID());
+//							}
 							msg = new ElectionMessage(node.getID(), dest.getID(), my_pid,m.getSource(),computation_index);
 							emitter.emit(node, msg);
 						}
 					}
 
 				}else {
-					if(node.getID() == 17){
-						System.out.println(node.getID()+" elec 2 send null ack to dest "+dest.getID());
-					}
+//					if(node.getID() == 17){
+//						System.out.println(node.getID()+" elec 2 send null ack to dest "+dest.getID());
+//					}
 					AckMessage amsg = new AckMessage(node.getID(), dest.getID(), my_pid,-1,-1,computation_index);
 					emitter.emit(node, amsg);	
 
@@ -257,14 +260,14 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 
 
 			}else if(inElection == false & leaderId != -1){// inElectionfalse et connait le leader
-				if(node.getID() == 17){
-					System.out.println(node.getID()+" elec connait son leader src " + m.getIdSrc()+" source "+m.getSource()+" inElection "+inElection+" leaderId "+leaderId+" local "+computation_index.getNum()+" "+computation_index.getId()+" "+m.getComputationNum()+" "+m.getComputationId());
-				}
+//				if(node.getID() == 17){
+//					System.out.println(node.getID()+" elec connait son leader src " + m.getIdSrc()+" source "+m.getSource()+" inElection "+inElection+" leaderId "+leaderId+" local "+computation_index.getNum()+" "+computation_index.getId()+" "+m.getComputationNum()+" "+m.getComputationId());
+//				}
 				if( (m.getComputationNum() == computation_index.getNum()) && m.getComputationId() == computation_index.getId())  {
 					//nothing
-					if(node.getID() == 17){
-						System.out.println(node.getID()+" nothing happens src " + m.getIdSrc()+" source "+m.getSource()+" inElection "+inElection+" leaderId "+leaderId);
-					}
+//					if(node.getID() == 17){
+//						System.out.println(node.getID()+" nothing happens src " + m.getIdSrc()+" source "+m.getSource()+" inElection "+inElection+" leaderId "+leaderId);
+//					}
 				}else {
 					if(m.getSource() != node.getID()) {// si Noeud node n'est pas la source d'éléction
 						parent = m.getIdSrc();
@@ -310,40 +313,40 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 		}
 		if (event instanceof AckMessage) { // A la réception de heartbeat
 			AckMessage m = (AckMessage) event;
-			if(node.getID() == 17){
-				System.out.println(node.getID()+" recu ackMessage de " +m.getIdSrc()+" message value: "+m.getValue()+" present value "+leaderValue+"leader Id proposed: "+m.getIdLeader()+" time "+CommonState.getIntTime());
-			}			
+//			if(node.getID() == 17){
+//				System.out.println(node.getID()+" recu ackMessage de " +m.getIdSrc()+" message value: "+m.getValue()+" present value "+leaderValue+"leader Id proposed: "+m.getIdLeader()+" time "+CommonState.getIntTime());
+//			}			
 			if(m.getComputationNum() == computation_index.getNum() && m.getComputationId() == computation_index.getId()) {
 				if(m.getValue() >= leaderValue) {
 
 					leaderValue = m.getValue();
 					leaderIdInformation = m.getIdLeader();
-					if(node.getID() == 17){
-						System.out.println(node.getID()+" leaderIdInfo changed now: " +leaderIdInformation);
-					}
+//					if(node.getID() == 17){
+//						System.out.println(node.getID()+" leaderIdInfo changed now: " +leaderIdInformation);
+//					}
 				}
 				ackHeard.remove(m.getIdSrc());
 				if(ackHeard.isEmpty()) {
-					if(node.getID() == 17){
-						System.out.println(node.getID()+" ackMessage empty time "+CommonState.getIntTime());
-					}
+//					if(node.getID() == 17){
+//						System.out.println(node.getID()+" ackMessage empty time "+CommonState.getIntTime());
+//					}
 					if(parent == -1) {//parent of election receive all ack
 						leaderId = leaderIdInformation; // vu que head a recu tt ack donc il connait le leaderId 
 						inElection = false;
-						if(node.getID() == 17){
-							System.out.println(node.getID()+" ackMessage empty decide leader "+leaderId+ " leaderValue "+leaderValue+" value "+value);
-						}
+//						if(node.getID() == 17){
+//							System.out.println(node.getID()+" ackMessage empty decide leader "+leaderId+ " leaderValue "+leaderValue+" value "+value);
+//						}
 
 						if(leaderValue == value) {
 							state = Etat.LEADER;
-							if(node.getID() == 17){
-								System.out.println(node.getID()+" become Leader et envoie beacon");
-							}
+//							if(node.getID() == 17){
+//								System.out.println(node.getID()+" become Leader et envoie beacon");
+//							}
 							emitter.emit(node,new BeaconMessage(node.getID(),Emitter.ALL,my_pid, 1));
 						}else {
-							if(node.getID() == 17){
-								System.out.println(node.getID()+" éléction valid leader known");
-							}
+//							if(node.getID() == 17){
+//								System.out.println(node.getID()+" éléction valid leader known");
+//							}
 							LeaderMessage msg = new LeaderMessage(node.getID(), node.getID(), my_pid, leaderId,leaderValue);
 
 							arrived_beacon_counter = 0;
@@ -357,9 +360,9 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 							if(dest.getID() == parent) { //this neighbor is parent dont propagete ElectionMessage
 								continue; 
 							}
-							if(node.getID() == 17){
-								System.out.println(node.getID()+" envoie leaderMessage à " + dest.getID()+" avec leaderId "+leaderId+" time "+CommonState.getIntTime());
-							}
+//							if(node.getID() == 17){
+//								System.out.println(node.getID()+" envoie leaderMessage à " + dest.getID()+" avec leaderId "+leaderId+" time "+CommonState.getIntTime());
+//							}
 							LeaderMessage msg = new LeaderMessage(node.getID(), dest.getID(), my_pid, leaderId,leaderValue);
 
 							arrived_beacon_counter = 0;
@@ -367,9 +370,9 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 						}
 					}else {
 						Node dest = Network.get((int)parent);
-						if(node.getID() == 17){
-							System.out.println(node.getID()+" envoie ackMessage vers " +dest.getID()+" leader Id last proposed: "+m.getIdLeader()+" value proposed "+leaderValue+"leaderInfo "+leaderIdInformation);
-						}
+//						if(node.getID() == 17){
+//							System.out.println(node.getID()+" envoie ackMessage vers " +dest.getID()+" leader Id last proposed: "+m.getIdLeader()+" value proposed "+leaderValue+"leaderInfo "+leaderIdInformation);
+//						}
 						AckMessage msg = new AckMessage(node.getID(), dest.getID(), my_pid, leaderIdInformation,leaderValue,computation_index);
 						EDSimulator.add(latency,msg, dest, my_pid);
 						ackParentDone = true;
@@ -381,9 +384,9 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 		if (event instanceof LeaderMessage) { // A la réception de heartbeat
 			//EXO 2 Q1 hypothése 5 à réaliser pour test scope à réception
 			LeaderMessage m = (LeaderMessage) event;
-			if(node.getID() == 17){
-				System.out.println(node.getID()+" recu leaderMessage de "+m.getIdSrc()+ " etat "+state+" ackParentDone :"+ackParentDone+ " parent "+parent);
-			}
+//			if(node.getID() == 17){
+//				System.out.println(node.getID()+" recu leaderMessage de "+m.getIdSrc()+ " etat "+state+" ackParentDone :"+ackParentDone+ " parent "+parent);
+//			}
 
 			if(state == Etat.NOTKNOWN) {
 
@@ -392,18 +395,18 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 					leaderId = m.getIdLeader();
 					arrived_beacon_counter = 0;
 					if(m.getLeaderValue() == value) {
-						if(node.getID() == 17){
-							System.out.println(node.getID()+" émission beacon");
-						}
+//						if(node.getID() == 17){
+//							System.out.println(node.getID()+" émission beacon");
+//						}
 						state = Etat.LEADER;
 						emitter.emit(node,new BeaconMessage(node.getID(),Emitter.ALL,my_pid, 1));
 					}else {
 						state = Etat.KNOWN;
 						BeaconExpiredMessage bem = new BeaconExpiredMessage(node.getID(), node.getID(), my_pid,  leaderId,1);
 						EDSimulator.add(beacon_interval*max_beacon_loss, bem, node, my_pid);
-						if(node.getID() == 17){
-							System.out.println(node.getID()+" armement beaconexpired");
-						}
+//						if(node.getID() == 17){
+//							System.out.println(node.getID()+" armement beaconexpired");
+//						}
 						if(parent == -1 && inElection == true) {
 							parent = m.getIdSrc();
 							inElection = false;
@@ -442,16 +445,16 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 					}
 					BeaconExpiredMessage bem = new BeaconExpiredMessage(node.getID(), node.getID(), my_pid, leaderId,arrived_beacon_counter);
 					EDSimulator.add(beacon_interval*max_beacon_loss, bem, node, my_pid);
-					if(node.getID() == 17){
-						System.out.println(node.getID()+" armement beaconexpired 2 source"+m.getIdSrc()+"value "+ leaderId);
-					}
+//					if(node.getID() == 17){
+//						System.out.println(node.getID()+" armement beaconexpired 2 source"+m.getIdSrc()+"value "+ leaderId);
+//					}
 				}else if (leaderValue == m.getLeaderValue()) {
 					//leaderMessage issu d'un broadcast d'un voisin
 					//même valeur donc ignorer
 				}else {//leader
-					if(node.getID() == 17){
-						System.out.println("leader treatement here");
-					}
+//					if(node.getID() == 17){
+//						System.out.println("leader treatement here");
+//					}
 					emitter.emit(node,new BeaconMessage(node.getID(),Emitter.ALL,my_pid, arrived_beacon_counter+1));
 				}
 				inElection = false;
@@ -465,9 +468,9 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 		}
 		if(event instanceof BeaconMessage) {
 			BeaconMessage m = (BeaconMessage) event;
-			if(node.getID() == 17){
-				//System.out.println(node.getID()+" BeaconMessage src: "+m.getIdSrc()+" beaconcounter "+m.getTimeStamp()+" awaited "+arrived_beacon_counter);
-			}
+//			if(node.getID() == 17){
+//				//System.out.println(node.getID()+" BeaconMessage src: "+m.getIdSrc()+" beaconcounter "+m.getTimeStamp()+" awaited "+arrived_beacon_counter);
+//			}
 			if(state == Etat.LEADER) {
 				//
 				if(m.getTimeStamp() == arrived_beacon_counter+1) {
@@ -502,9 +505,9 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 				//				if(beacon_loss_count == max_beacon_loss) {
 				//trigger election & get riede of ex leader
 
-				if(node.getID() == 17){
-					System.out.println(node.getID() + " beacon expired");
-				}
+//				if(node.getID() == 17){
+//					System.out.println(node.getID() + " beacon expired");
+//				}
 				leaderValue = -1;
 				leaderId = -1;
 				state = Etat.NOTKNOWN;	
@@ -520,9 +523,9 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 					// here error : always if(m.getAwaitedCounter() > arrived_beacon_counter) 
 					parent = -1;
 					ElectionMessage emsg = new ElectionMessage(node.getID(),node.getID(),my_pid, node.getID(), computation_index);
-					if(node.getID() == 17){
-						System.out.println(node.getID() + " beacon expired éléction msg :"+ computation_num +" " + computation_id+" computaion index "+computation_index.getNum()+","+computation_index.getId()+" time "+CommonState.getIntTime());
-					}
+//					if(node.getID() == 17){
+//						System.out.println(node.getID() + " beacon expired éléction msg :"+ computation_num +" " + computation_id+" computaion index "+computation_index.getNum()+","+computation_index.getId()+" time "+CommonState.getIntTime());
+//					}
 					emitter.emit(node, emsg);
 				}
 				//				}
@@ -638,20 +641,20 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 
 	public void newNeighborDetected(Node host, long id_new_neighbor, long idLeader_of_new_neighbor) {
 		//
-		if(host.getID() == 17){
-			System.out.println("Ajout du voisin "+id_new_neighbor+" dans la liste des voisins de "+host.getID()+" leaderId "+leaderId+" new voisin's leader "+idLeader_of_new_neighbor);
-		}
+//		if(host.getID() == 17){
+//			System.out.println("Ajout du voisin "+id_new_neighbor+" dans la liste des voisins de "+host.getID()+" leaderId "+leaderId+" new voisin's leader "+idLeader_of_new_neighbor);
+//		}
 		if(idLeader_of_new_neighbor != leaderId) {// node not in my sphere before
 			if(!inElection) {
-				if(host.getID() == 17){
-					System.out.println(host.getID()+" : NEW LEADER voisin : "+id_new_neighbor+" envoie de leaderId "+leaderId+" et leaderValue "+leaderValue);
-				}
+//				if(host.getID() == 17){
+//					System.out.println(host.getID()+" : NEW LEADER voisin : "+id_new_neighbor+" envoie de leaderId "+leaderId+" et leaderValue "+leaderValue);
+//				}
 				LeaderMessage lmsg = new LeaderMessage(host.getID(), id_new_neighbor, my_pid, leaderId,leaderValue);
 				emitter.emit(host, lmsg);
 			}else {//bug ???? 
-				if(host.getID() == 17){
-					System.out.println(host.getID()+" : NEW voisin => Election src : "+id_new_neighbor+" idLeaderOfNewNeighbor "+idLeader_of_new_neighbor+" oldLostLeader "+oldLostLeaderId );
-				}	
+//				if(host.getID() == 17){
+//					System.out.println(host.getID()+" : NEW voisin => Election src : "+id_new_neighbor+" idLeaderOfNewNeighbor "+idLeader_of_new_neighbor+" oldLostLeader "+oldLostLeaderId );
+//				}	
 				//				if(idLeader_of_new_neighbor != oldLostLeaderId) {
 				// inElection et leader -1 donc 
 				ElectionMessage emsg = new ElectionMessage(host.getID(),id_new_neighbor,my_pid, host.getID(), computation_index);
@@ -676,9 +679,9 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 					if(parent == -1) {//parent of election receive all ack
 						leaderId = leaderIdInformation; // vu que head a recu tt ack donc il connait le leaderId 
 						inElection = false;
-						if(host.getID() == 17){
-							System.out.println(host.getID()+" ackMessage empty "+leaderId);
-						}
+//						if(host.getID() == 17){
+//							System.out.println(host.getID()+" ackMessage empty "+leaderId);
+//						}
 						if(neighbors.size() == 0) {
 							inElection=false;
 							state = Etat.LEADER;
@@ -695,9 +698,9 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 									state = Etat.LEADER;
 									emitter.emit(host,new BeaconMessage(host.getID(),Emitter.ALL,my_pid, 1));
 								}else {
-									if(host.getID() == 17){
-										System.out.println(host.getID()+" éléction valid leader known");
-									}
+//									if(host.getID() == 17){
+//										System.out.println(host.getID()+" éléction valid leader known");
+//									}
 									state = Etat.KNOWN;
 								}
 								if(host.getID() == 17){
@@ -711,9 +714,9 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 						}
 					}else {
 						Node dest = Network.get((int)parent);
-						if(host.getID() == 17){
-							System.out.println(host.getID()+" lost neighbor ack " +dest.getID());
-						}
+//						if(host.getID() == 17){
+//							System.out.println(host.getID()+" lost neighbor ack " +dest.getID());
+//						}
 						AckMessage msg = new AckMessage(host.getID(), dest.getID(), my_pid, leaderIdInformation,leaderValue, computation_index);
 						EDSimulator.add(latency,msg, dest, my_pid);
 						ackParentDone = true;
@@ -721,9 +724,9 @@ public class VKT04 implements ElectionProtocol, Monitorable, NeighborProtocol, N
 					}
 				}
 			}else {// si parent perdu pd election
-				if(host.getID() == 17){
-					System.out.println(host.getID()+" perdu parent ");
-				}
+//				if(host.getID() == 17){
+//					System.out.println(host.getID()+" perdu parent ");
+//				}
 				parent = -1;
 				//inElection = false;
 			//	state = Etat.NOTKNOWN;

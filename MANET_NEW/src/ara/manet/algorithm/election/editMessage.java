@@ -1,9 +1,9 @@
-package ara.manet.algorithm.election;
+package src.ara.manet.algorithm.election;
 
 import java.util.List;
 
-import ara.manet.algorithm.election.GlobalViewLeader.Peer;
-import ara.util.Message;
+import src.ara.manet.algorithm.election.GlobalViewLeader.Peer;
+import src.ara.util.Message;
 
 public class editMessage extends Message{
 	

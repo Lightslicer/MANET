@@ -1,15 +1,14 @@
-package ara.manet;
+package src.ara.manet;
 
 import java.util.Random;
 
-import ara.manet.algorithm.election.ElectionMessage;
-import ara.manet.algorithm.election.VKT04Statique;
-import ara.manet.communication.EmitterImpl;
-import ara.manet.positioning.PositionProtocolImpl;
 import peersim.config.Configuration;
 import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
+import src.ara.manet.algorithm.election.ElectionMessage;
+import src.ara.manet.algorithm.election.VKT04Statique;
+import src.ara.manet.positioning.PositionProtocolImpl;
 
 public class InitialisationVTKStatique implements Control{
 	

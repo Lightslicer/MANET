@@ -1,17 +1,17 @@
-package ara.manet;
+package src.ara.manet;
 
 import java.util.Random;
 
-import ara.manet.algorithm.election.ElectionMessage;
-import ara.manet.algorithm.election.Pair;
-import ara.manet.algorithm.election.VKT04;
-import ara.manet.communication.Emitter;
-import ara.manet.detection.ProbeMessage;
-import ara.manet.positioning.PositionProtocolImpl;
 import peersim.config.Configuration;
 import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
+import src.ara.manet.algorithm.election.ElectionMessage;
+import src.ara.manet.algorithm.election.Pair;
+import src.ara.manet.algorithm.election.VKT04;
+import src.ara.manet.communication.Emitter;
+import src.ara.manet.detection.ProbeMessage;
+import src.ara.manet.positioning.PositionProtocolImpl;
 
 public class InitialisationVTK implements Control{
 	

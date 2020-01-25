@@ -1,16 +1,12 @@
-package ara.manet;
+package src.ara.manet;
 
-import ara.manet.algorithm.election.GlobalViewLeader;
-import ara.manet.algorithm.election.VKT04Statique;
-import ara.manet.communication.EmitterImpl;
-import ara.manet.detection.HeartBeatMessage;
-import ara.manet.detection.NeighborProtocolImpl;
-import ara.manet.detection.NeighborhoodListenerImpl;
-import ara.manet.positioning.PositionProtocolImpl;
 import peersim.config.Configuration;
 import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
+import src.ara.manet.algorithm.election.GlobalViewLeader;
+import src.ara.manet.detection.NeighborhoodListenerImpl;
+import src.ara.manet.positioning.PositionProtocolImpl;
 
 public class InitialisationGlobalViewLeader implements Control{
 

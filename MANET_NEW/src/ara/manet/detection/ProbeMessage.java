@@ -1,6 +1,6 @@
-package ara.manet.detection;
+package src.ara.manet.detection;
 
-import ara.util.Message;
+import src.ara.util.Message;
 
 public class ProbeMessage extends Message {
 
