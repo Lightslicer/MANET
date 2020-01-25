@@ -13,6 +13,9 @@ import ara.manet.algorithm.election.VKT04Statique.Etat;
 import ara.manet.communication.Emitter;
 import ara.manet.detection.NeighborProtocol;
 import ara.manet.detection.NeighborhoodListener;
+import ara.manet.detection.ProbeMessage;
+import ara.manet.detection.RemoveMessage;
+import ara.manet.detection.ReplyMessage;
 import ara.manet.positioning.Position;
 import ara.manet.positioning.PositionProtocolImpl;
 import peersim.config.Configuration;
@@ -35,7 +38,7 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 		List<Peer> neighbors;
 		public View(int clock, List<Peer> neighbors) {
 			this.clock = clock;
-			this.neighbors = neighbors; // instancier direct ?
+			this.neighbors = neighbors; 
 		}
 	}
 	
@@ -50,18 +53,19 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 	private int pid;
 	private int value;
 	private int clock;
+	private View view;
 	private List<Peer> neighbors;
 	private Peer peer;
 	private View[] knowledge;
+	private int leader;
 	
 	private int probe;
 	private int timer;
-	private int leader;
 	private Emitter emitter;
 	
 	
 	public GlobalViewLeader(String prefix) {
-		View view = new View(clock, neighbors);
+		view = new View(clock, neighbors);
 		knowledge = new View[Network.size()];
 		String tmp[] = prefix.split("\\.");
 		pid = Configuration.lookupPid(tmp[tmp.length - 1]);
@@ -76,6 +80,7 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 		//initialisation
 		neighbors.add(peer);
 		clock = 0;
+		leader = -1;
 	}
 	
 
@@ -91,17 +96,17 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 			knowledge[pid].clock = clock;
 			knowledge[pid].neighbors = neighbors;
 			//broadcast knowledge
-			emitter.emit(node, new knowledgeMessage(pid, emitter.ALL, pid, knowledge, clock));
+			emitter.emit(node, new knowledgeMessage(pid, Emitter.ALL, pid, knowledge, clock));
 			
 		}
 		
 		//upon disconnected peer j
 		if(event instanceof disconnectedMessage) {
 			disconnectedMessage m = (disconnectedMessage) event;
-			List<Peer> removed = null;
+			List<Peer> removed = new ArrayList<>();
 			Peer rm = new Peer(m.getPid(), m.getPid());
 			removed.add(rm);
-			editMessage edit = new editMessage(pid, emitter.ALL, pid, null, removed, clock, clock+1);
+			editMessage edit = new editMessage(pid, Emitter.ALL, pid, null, removed, clock, clock+1);
 			for(Peer p : neighbors) {
 				if(p.id == m.getPid()) {
 					neighbors.remove(p);
@@ -114,22 +119,44 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 			emitter.emit(node, edit);
 		}
 		
+		
+		
+		//probe
+		//reply
+		//remove
+		
+		if(event instanceof ProbeMessage) {
+			
+		}
+		
+		if(event instanceof ReplyMessage) {
+			
+		}
+		
+		if(event instanceof RemoveMessage) {
+			
+		}
+		
+		
+		
 		//upon reception of knowledge from peer j
 		if(event instanceof knowledgeMessage) {
 			knowledgeMessage m = (knowledgeMessage) event;
 			editMessage edit = null;
 			for(Peer p : m.knowledge[m.getPid()].neighbors) {
 				if(knowledge[p.id] == null) {
-					edit = new editMessage(p.id, emitter.ALL, p.id, m.knowledge[p.id].neighbors, null, 0, m.knowledge[p.id].clock);
+					edit = new editMessage(p.id, Emitter.ALL, p.id, m.knowledge[p.id].neighbors, null, 0, m.knowledge[p.id].clock);
 					knowledge[p.id].neighbors = m.knowledge[p.id].neighbors;
 					knowledge[p.id].clock = m.knowledge[p.id].clock;
 				}else{
 					if(m.knowledge[p.id].clock > knowledge[p.id].clock) {
 						List<Peer> added = new ArrayList<>(m.knowledge[p.id].neighbors);
 						List<Peer> removed = new ArrayList<>(knowledge[p.id].neighbors);
-						added.remove(knowledge[p.id].neighbors);
-						removed.remove(m.knowledge[p.id].neighbors);
-						edit = new editMessage(p.id, emitter.ALL, p.id, added, removed, knowledge[p.id].clock, m.knowledge[p.id].clock);
+						for(int i=0; i<knowledge[p.id].neighbors.size(); i++) {
+							added.remove(knowledge[p.id].neighbors.get(i));
+							removed.remove(m.knowledge[p.id].neighbors.get(i));
+						}
+						edit = new editMessage(p.id, Emitter.ALL, p.id, added, removed, knowledge[p.id].clock, m.knowledge[p.id].clock);
 						knowledge[p.id].neighbors = m.knowledge[p.id].neighbors;
 						knowledge[p.id].clock = m.knowledge[p.id].clock;
 					}
@@ -186,34 +213,24 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 		}
 	}
 	
-	public void leader(Peer peer) {
+	public int leader() {
+		int max=-1;
 		List<Peer> voisins = new ArrayList<Peer>(knowledge[peer.id].neighbors);
 		for(Peer p : voisins) {
 			
 		}
+		return max;
 	}
 
 
-	/*
-	public List<Peer> getNeighbors() {
-		int position_pid=Configuration.lookupPid("position");
-		PositionProtocolImpl p = (PositionProtocolImpl) Network.get(value).getProtocol(position_pid);
-		Position pos = p.getCurrentPosition();
-		for(int i = 0 ; i< Network.size();i++){
-			Node dst = Network.get(i);
-			if(dst.equals(Network.get(value))) {// éviter d'ajouter soi-meme
-				continue;
-			}
-			PositionProtocolImpl pp = (PositionProtocolImpl) dst.getProtocol(position_pid);
-			if((pp.getCurrentPosition().distance(pos)) <= Configuration.getInt("protocol.vkt." + PAR_SCOPE)) {
-				int dstID = (int) dst.getID();
-				int dstVal = (int) dst.getID();
-				Peer dstPeer = new Peer(dstID, dstVal);
-				neighbors.add(dstPeer);
-			}
+	@Override
+	public List<Long> getNeighbors() {
+		List<Long> res = new ArrayList<>();
+		for(int i=0; i<neighbors.size(); i++) {
+			res.add((long) neighbors.get(i).id);
 		}
-		return neighbors;
-	}*/
+		return res;
+	}
 
 
 
@@ -242,17 +259,27 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 		try {
 			gvl = (GlobalViewLeader) super.clone();
 			gvl.neighbors = new ArrayList<Peer>();
-			//gvl.leaderId = -1;
-			//gvl.parent = -1;
-			//gvl.leaderValue = -1;
-			//gvl.childrenCount = 0;
-			//gvl.state = Etat.NOTKNOWN;
-			//gvl.ackHear = new HashSet<>();
+			gvl.pid = -1;
+			gvl.value = -1;
+			gvl.clock = -1;
+			gvl.peer = new Peer(clock, clock);
+			gvl.knowledge = new View[clock];
+			gvl.view = new View(clock, neighbors);
+			gvl.leader = -1;
 		}
 		catch( CloneNotSupportedException e ) {} // never happens
 		return gvl;
 	}
-
+	/*private int pid;
+	private int value;
+	private int clock;
+	private List<Peer> neighbors;
+	private Peer peer;
+	private View[] knowledge;
+	
+	private int probe;
+	private int timer;
+	private int leader;*/
 	@Override
 	public void attach(NeighborhoodListener nl) {
 		// TODO Auto-generated method stub
@@ -284,11 +311,11 @@ public class GlobalViewLeader implements ElectionProtocol, Monitorable, Neighbor
 	}
 
 
-
+	/*
 	@Override
 	public List<Long> getNeighbors() {
 		// TODO Auto-generated method stub
 		return null;
-	}
+	}*/
 
 }
