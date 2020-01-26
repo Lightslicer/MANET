@@ -1,23 +1,23 @@
-network.size 30
+network.size 60
 random.seed 10
-simulation.endtime 50000
+simulation.endtime 100000
 
 protocol.position PositionProtocolImpl
-protocol.position.maxspeed 300
-protocol.position.minspeed 30
-protocol.position.width 3000
-protocol.position.height 3000
-protocol.position.pause 200
+protocol.position.minspeed 5
+protocol.position.maxspeed 20
+protocol.position.width 1200
+protocol.position.height 1200
+protocol.position.pause 20
 
 protocol.emit EmitterImpl
-protocol.emit.latency 50
-protocol.emit.scope 200
+protocol.emit.latency 90
+protocol.emit.scope 170
 protocol.emit.variance FALSE
 protocol.emit.positionProtocol position
 
 protocol.gvl GlobalViewLeader
-protocol.gvl.probe 100
-protocol.gvl.timer 100
+protocol.gvl.probe 300
+protocol.gvl.timer 400
 
 initial_position_strategy FullRandom
 initial_position_strategy.positionprotocol position
@@ -32,11 +32,21 @@ control.monitor GraphicalMonitor
 control.monitor.positionprotocol position
 control.monitor.emitter emit
 control.monitor.neighborprotocol gvl
-control.monitor.time_slow 0.0002
+control.monitor.monitorableprotocol gvl
+control.monitor.time_slow 0.000000001
 control.monitor.from 0
-control.monitor.until 50000
+control.monitor.until 100000
 control.monitor.step 1
+
+control.connexite ConnexiteMonitor
+control.connexite.positionprotocol position
+control.connexite.emitter emit
+control.connexite.neighborprotocol gvl
+control.connexite.monitorableprotocol gvl
+control.connexite.timer 10
+control.connexite.from 0
+control.connexite.until 100000
+control.connexite.step 1
 
 
 init.i InitialisationGlobalViewLeader
-
